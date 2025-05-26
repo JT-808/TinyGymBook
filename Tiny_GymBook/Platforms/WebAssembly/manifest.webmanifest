@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "Tiny_GymBook",
+  "display": "standalone",
+  "name": "Tiny_GymBook",
+  "short_name": "Tiny_GymBook",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
