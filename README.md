@@ -13,7 +13,6 @@ Eine schlanke, plattformübergreifende Gym-Tracking-App, die sich auf das Wesent
 
 ## Über das Projekt
 
-Dieses Projekt hat erst heute begonnen.  
 Die App richtet sich an Anfänger und Fortgeschrittene, die ihre Trainingswerte einfach und ohne Ablenkung dokumentieren möchten.
 
 - Kein Login, kein Account  
