@@ -7,5 +7,6 @@ public sealed partial class MainPage : Page
         this.InitializeComponent();
 
         //test
+        //test
     }
 }
