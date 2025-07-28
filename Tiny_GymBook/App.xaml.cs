@@ -4,13 +4,19 @@ namespace Tiny_GymBook;
 
 public partial class App : Application
 {
+
     public App()
     {
+        // Diesen Aufruf brauchst du
         this.InitializeComponent();
+
     }
 
     protected Window? MainWindow { get; private set; }
     protected IHost? Host { get; private set; }
+
+
+
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {

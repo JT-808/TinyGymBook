@@ -1,20 +1,43 @@
-// Models/Trainingseintrag.cs
+using System.Collections.ObjectModel;
+
 namespace Tiny_GymBook.Models;
 
 public class Trainingseintrag
 {
     public Uebung Uebung { get; set; }
-    public int Saetze { get; set; }
-    public int Wiederholungen { get; set; }
-    public double Gewicht { get; set; }
-    public string Kommentar { get; set; }
+    public ObservableCollection<Satz> Saetze { get; set; } = new();
 
-    public Trainingseintrag(Uebung uebung, int saetze, int wiederholungen, double gewicht, string kommentar)
+
+    public Trainingseintrag(Uebung uebung)
     {
         Uebung = uebung.Copy();
-        Saetze = saetze;
-        Wiederholungen = wiederholungen;
-        Gewicht = gewicht;
-        Kommentar = kommentar;
+
+        // Beispiel: Standard 3 Sätze, 10 Wiederholungen, 0 Gewicht, leerer Kommentar
+        for (int i = 1; i <= 3; i++)
+        {
+            Saetze.Add(new Satz
+            {
+                Nummer = i,
+                Gewicht = 0,
+                Wiederholungen = 10,
+                Kommentar = string.Empty
+            });
+        }
+    }
+
+    public Trainingseintrag(Uebung uebung, int anzahlSaetze, int wiederholungen, double gewicht, string kommentar)
+    {
+        Uebung = uebung.Copy();
+
+        for (int i = 1; i <= anzahlSaetze; i++)
+        {
+            Saetze.Add(new Satz
+            {
+                Nummer = i,
+                Gewicht = gewicht,
+                Wiederholungen = wiederholungen,
+                Kommentar = kommentar
+            });
+        }
     }
 }
