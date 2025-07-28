@@ -1,4 +1,6 @@
+using Uno.UI;
 namespace Tiny_GymBook.Presentation;
+
 
 public partial class MainViewModel : ObservableObject
 {
@@ -28,3 +30,4 @@ public partial class MainViewModel : ObservableObject
     }
 
 }
+

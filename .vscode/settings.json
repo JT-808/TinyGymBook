@@ -6,5 +6,8 @@
   },
   "files.associations": {
     "global.json": "jsonc"
-  }
+  },
+  "unoplatform.ignoreCheck": true
+  //   "editor.fontFamily": "'JetBrainsMono Nerd Font', monospace",
+  // "editor.fontLigatures": true
 }
