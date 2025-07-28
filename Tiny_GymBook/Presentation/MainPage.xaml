@@ -21,7 +21,7 @@
 
     <!-- WochenHeader -->
     <TextBlock x:Name="WochenHeader"
-               Text="{Binding WochenHeaderText}"
+               Text="{Binding AktuelleWoche.WochenHeaderText}"
                FontSize="18"
                FontWeight="Bold"
                Margin="0,0,0,12"/>
@@ -117,11 +117,6 @@
                         Command="{Binding NavigateToPlaeneCommand}">
           <utu:TabBarItem.Icon>
             <FontIcon Glyph="{StaticResource SupportIcon}"/>
-          </utu:TabBarItem.Icon>
-        </utu:TabBarItem>
-        <utu:TabBarItem Content="ABOUT">
-          <utu:TabBarItem.Icon>
-            <FontIcon Glyph="{StaticResource AboutIcon}"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
       </utu:TabBar.Items>

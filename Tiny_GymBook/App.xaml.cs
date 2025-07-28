@@ -51,6 +51,9 @@ public partial class App : Application
                 })
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddTransient<ShellViewModel>();
+                    services.AddTransient<MainViewModel>();
+                    services.AddTransient<SecondViewModel>();
                     // Hier Ihre eigenen Services registrieren
                 })
                 .UseNavigation(RegisterRoutes)

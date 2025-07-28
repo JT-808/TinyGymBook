@@ -1,39 +1,60 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Tiny_GymBook.Models;
 
 namespace Tiny_GymBook.Presentation;
 
 public partial class SecondViewModel : ObservableObject
 {
-    // Collection für ListView
-    [ObservableProperty]
-    private ObservableCollection<Trainingsplan> trainingsplaene = new();
+    private readonly INavigator _navigator;
 
-    // Optional: Ausgewählter Plan (nicht zwingend notwendig für Navigation)
+    [ObservableProperty]
+    private ObservableCollection<Trainingsplan> trainingsplaene;
+
     [ObservableProperty]
     private Trainingsplan? selectedPlan;
 
-    public SecondViewModel()
+    public SecondViewModel(INavigator navigator)
     {
-        // Beispiel-Daten (kann später durch Datenbank ersetzt werden)
+        _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+        InitializeData();
+        Debug.WriteLine($"Navigator initialisiert: {_navigator.GetType().Name}");
+    }
+
+    private void InitializeData()
+    {
         Trainingsplaene = new ObservableCollection<Trainingsplan>
         {
-            new Trainingsplan("3er Split", new List<Uebung>()),
-            new Trainingsplan("4er Split", new List<Uebung>()),
-            new Trainingsplan("5er Split", new List<Uebung>()),
-            new Trainingsplan("Ganzkörper", new List<Uebung>())
+            new("3er Split", new List<Uebung>()),
+            new("4er Split", new List<Uebung>()),
+            new("5er Split", new List<Uebung>()),
+            new("Ganzkörper", new List<Uebung>())
         };
     }
 
-    // Navigation zu Detailansicht (noch zu implementieren)
     [RelayCommand]
-    private void OpenPlan(Trainingsplan plan)
+    private async Task OpenPlanAsync(Trainingsplan plan)
     {
-        // Hier später Navigation einfügen, z. B.:
-        // await Navigator.NavigateViewModelAsync<PlanDetailViewModel, Trainingsplan>(plan);
-        System.Diagnostics.Debug.WriteLine($"Navigiere zu Plan: {plan.Name}");
+        if (plan is null) return;
+
+        Debug.WriteLine($"Öffne Plan: {plan.Name}");
+        await Task.CompletedTask; // Platzhalter für zukünftige Navigation
+        // await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, plan);
+    }
+
+    [RelayCommand]
+    private async Task NavigateToHomeAsync()
+    {
+        try
+        {
+            await _navigator.NavigateBackAsync(this).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Navigationsfehler: {ex.Message}");
+        }
     }
 
     [RelayCommand]

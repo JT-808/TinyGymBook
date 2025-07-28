@@ -6,6 +6,8 @@ namespace Tiny_GymBook.Models;
 
 public class Trainingswoche
 {
+
+    public string WochenHeaderText { get; }
     public int KalenderWoche { get; }
     public int Jahr { get; }
     public DateTime StartDatum { get; } // Montag
@@ -18,8 +20,13 @@ public class Trainingswoche
         Jahr = jahr;
         StartDatum = startDatum;
         EndDatum = startDatum.AddDays(6);
+        WochenHeaderText = GeneriereHeaderText();
     }
 
+    private string GeneriereHeaderText()
+    {
+        return $"KW {KalenderWoche} | {StartDatum:dd.MM.yyyy} - {EndDatum:dd.MM.yyyy}";
+    }
     public void UebernehmeTrainingsplan(Trainingsplan plan)
     {
         foreach (var uebung in plan.Uebungen)
@@ -28,6 +35,7 @@ public class Trainingswoche
             AddEintrag(eintrag);
         }
     }
+
 
     public void AddEintrag(Trainingseintrag eintrag) => Eintraege.Add(eintrag);
 

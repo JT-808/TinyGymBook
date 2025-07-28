@@ -9,28 +9,34 @@ public partial class MainViewModel : ObservableObject
 {
 
     [ObservableProperty]
-    private string wochenHeaderText;
-    private readonly INavigator _navigator;
+    private INavigator _navigator;
+
+    [ObservableProperty]
+    private Trainingswoche aktuelleWoche;
 
     // ObservableCollection von Trainingseinträgen
     public ObservableCollection<Trainingseintrag> Eintraege { get; } = new();
 
     public MainViewModel(INavigator navigator)
     {
+        _navigator = navigator;
+        InitializeWeek();
         LadeBeispielDaten();
 
-        //Kalenderwoche
-        var kw = System.Globalization.ISOWeek.GetWeekOfYear(DateTime.Now);
-        WochenHeaderText = $"KW {kw} | {DateTime.Today:dd.MM.yyyy} - {DateTime.Today.AddDays(6):dd.MM.yyyy}";
+    }
 
-        _navigator = navigator;
-
+    private void InitializeWeek()
+    {
+        var heute = DateTime.Today;
+        var kw = System.Globalization.ISOWeek.GetWeekOfYear(heute);
+        var montag = heute.AddDays(-(int)heute.DayOfWeek + (int)DayOfWeek.Monday);
+        AktuelleWoche = new Trainingswoche(kw, heute.Year, montag);
     }
 
     [RelayCommand]
     private async Task NavigateToPlaeneAsync()
     {
-        await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
+        await Navigator.NavigateViewModelAsync<SecondViewModel>(this);
     }
 
     private void LadeBeispielDaten()
