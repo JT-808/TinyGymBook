@@ -1,5 +1,8 @@
+using Microsoft.UI.Xaml.Data;
+
 namespace Tiny_GymBook.Presentation;
 
+[Bindable]
 public class ShellViewModel
 {
     private readonly INavigator _navigator;

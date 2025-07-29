@@ -1,4 +1,4 @@
-// Models/Muskelgruppe.cs
+
 namespace Tiny_GymBook.Models;
 
 public enum Muskelgruppe

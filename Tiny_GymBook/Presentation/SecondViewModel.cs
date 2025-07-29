@@ -1,45 +1,53 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
+using Tiny_GymBook.Services.Trainingsplanservice;
 
 namespace Tiny_GymBook.Presentation;
 
+[Bindable]
 public partial class SecondViewModel : ObservableObject
 {
     private readonly INavigator _navigator;
+    private readonly ITrainingsplanService _trainingsplanService;
 
     [ObservableProperty]
-    private ObservableCollection<Trainingsplan> trainingsplaene;
+    private ObservableCollection<Trainingsplan> trainingsplaene = new();
 
     [ObservableProperty]
     private Trainingsplan? selectedPlan;
 
-    public SecondViewModel(INavigator navigator)
+    public SecondViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
     {
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
-        Trainingsplaene = new(); // <- direkte Initialisierung
-        InitializeData();
-        Debug.WriteLine($"Navigator initialisiert: {_navigator.GetType().Name}");
+        _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
+
+        Debug.WriteLine($"[DEBUG] Navigator initialisiert: {_navigator.GetType().Name}");
+
+        _ = LadeTrainingsplaeneAsync();
     }
 
-    private void InitializeData()
+    private async Task LadeTrainingsplaeneAsync()
     {
+        Debug.WriteLine("[DEBUG] Starte LadeTrainingsplaeneAsync()");
+        var geladenePlaene = await _trainingsplanService.LadeTrainingsplaeneAsync();
         Trainingsplaene.Clear();
-        Trainingsplaene.Add(new("3er Split", new List<Uebung>
+        foreach (var plan in geladenePlaene)
+        {
+            Debug.WriteLine($"[DEBUG] Geladen: {plan.Name} mit {plan.Uebungen.Count} Übungen");
+            Trainingsplaene.Add(plan);
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddPlanAsync()
     {
-        new("Bankdrücken", Muskelgruppe.Brust),
-        new("Kreuzheben", Muskelgruppe.Rücken),
-        new("Kniebeuge", Muskelgruppe.Beine)
-    }));
-        Trainingsplaene.Add(new("4er Split", new List<Uebung>
-    {
-        new("Military Press", Muskelgruppe.Schultern),
-        new("Latzug", Muskelgruppe.Rücken),
-        new("Beinpresse", Muskelgruppe.Beine),
-        new("Bizepscurls", Muskelgruppe.Arme)
-    }));
+        var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
+        Trainingsplaene.Add(neuerPlan);
+        await _trainingsplanService.SpeichereAlleTrainingsplaeneAsync(Trainingsplaene);
     }
 
     [RelayCommand]
@@ -47,9 +55,9 @@ public partial class SecondViewModel : ObservableObject
     {
         if (plan is null) return;
 
-        Debug.WriteLine($"Öffne Plan: {plan.Name}");
-        await Task.CompletedTask; // Platzhalter für zukünftige Navigation
-        // await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, plan);
+        Debug.WriteLine($"[DEBUG] Öffne Plan: {plan.Name}");
+
+        //  await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this,data: plan);
     }
 
     [RelayCommand]
@@ -57,18 +65,11 @@ public partial class SecondViewModel : ObservableObject
     {
         try
         {
-            await _navigator.NavigateBackAsync(this).ConfigureAwait(false);
+            await _navigator.NavigateBackAsync(this);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Navigationsfehler: {ex.Message}");
+            Debug.WriteLine($"[FEHLER] Navigation: {ex.Message}");
         }
-    }
-
-    [RelayCommand]
-    private void AddPlan()
-    {
-        var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-        Trainingsplaene.Add(neuerPlan);
     }
 }

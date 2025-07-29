@@ -1,4 +1,5 @@
 using Uno.Resizetizer;
+using Tiny_GymBook.Services.Trainingsplanservice;
 
 namespace Tiny_GymBook;
 
@@ -54,6 +55,7 @@ public partial class App : Application
                     services.AddTransient<ShellViewModel>();
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<SecondViewModel>();
+                    services.AddSingleton<ITrainingsplanService, JsonTrainingsplanService>();
                     // Hier Ihre eigenen Services registrieren
                 })
                 .UseNavigation(RegisterRoutes)

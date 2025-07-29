@@ -32,6 +32,10 @@
                Foreground="DodgerBlue"
                Margin="0,0,0,8"/>
 
+    <TextBlock Grid.Row="1"
+        Text="{Binding Trainingsplaene.Count}"
+        FontSize="18"/>
+
     <!-- Liste der Pläne -->
     <ListView Grid.Row="1"
               ItemsSource="{Binding Trainingsplaene}"

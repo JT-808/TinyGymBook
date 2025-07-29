@@ -1,10 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using Tiny_GymBook.Models;
 
 namespace Tiny_GymBook.Presentation;
 
+[Bindable]
 public partial class MainViewModel : ObservableObject
 {
 

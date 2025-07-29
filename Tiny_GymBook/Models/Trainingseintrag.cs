@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
+using Microsoft.UI.Xaml.Data;
 
 namespace Tiny_GymBook.Models;
 
+[Bindable]
 public class Trainingseintrag
 {
     public Uebung Uebung { get; set; }
