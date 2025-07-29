@@ -19,19 +19,27 @@ public partial class SecondViewModel : ObservableObject
     public SecondViewModel(INavigator navigator)
     {
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+        Trainingsplaene = new(); // <- direkte Initialisierung
         InitializeData();
         Debug.WriteLine($"Navigator initialisiert: {_navigator.GetType().Name}");
     }
 
     private void InitializeData()
     {
-        Trainingsplaene = new ObservableCollection<Trainingsplan>
-        {
-            new("3er Split", new List<Uebung>()),
-            new("4er Split", new List<Uebung>()),
-            new("5er Split", new List<Uebung>()),
-            new("Ganzkörper", new List<Uebung>())
-        };
+        Trainingsplaene.Clear();
+        Trainingsplaene.Add(new("3er Split", new List<Uebung>
+    {
+        new("Bankdrücken", Muskelgruppe.Brust),
+        new("Kreuzheben", Muskelgruppe.Rücken),
+        new("Kniebeuge", Muskelgruppe.Beine)
+    }));
+        Trainingsplaene.Add(new("4er Split", new List<Uebung>
+    {
+        new("Military Press", Muskelgruppe.Schultern),
+        new("Latzug", Muskelgruppe.Rücken),
+        new("Beinpresse", Muskelgruppe.Beine),
+        new("Bizepscurls", Muskelgruppe.Arme)
+    }));
     }
 
     [RelayCommand]

@@ -12,7 +12,7 @@ public partial class MainViewModel : ObservableObject
     private INavigator _navigator;
 
     [ObservableProperty]
-    private Trainingswoche aktuelleWoche;
+    private Trainingswoche? aktuelleWoche;
 
     // ObservableCollection von Trainingseinträgen
     public ObservableCollection<Trainingseintrag> Eintraege { get; } = new();
