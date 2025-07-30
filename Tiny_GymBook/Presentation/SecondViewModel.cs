@@ -38,6 +38,7 @@ public partial class SecondViewModel : ObservableObject
         foreach (var plan in geladenePlaene)
         {
             Debug.WriteLine($"[DEBUG] Geladen: {plan.Name} mit {plan.Uebungen.Count} Übungen");
+            Debug.WriteLine($"[DEBUG] DB-Plan: {plan.Trainingsplan_Id}, Name = {plan.Name}");
             Trainingsplaene.Add(plan);
         }
     }
@@ -45,9 +46,21 @@ public partial class SecondViewModel : ObservableObject
     [RelayCommand]
     private async Task AddPlanAsync()
     {
+        var count = await _trainingsplanService.LadeTrainingsplaeneAsync();
+        Debug.WriteLine($"[DEBUG] Es gibt jetzt {count.Count()} Pläne in der DB.");
+
         var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-        Trainingsplaene.Add(neuerPlan);
-        await _trainingsplanService.SpeichereAlleTrainingsplaeneAsync(Trainingsplaene);
+        // NICHT explizit neuerPlan.Trainingsplan_Id setzen!
+
+        await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan);
+
+        // Die ID sollte jetzt automatisch gesetzt sein
+        Debug.WriteLine($"[DEBUG] Neuer Plan nach Insert: ID = {neuerPlan.Trainingsplan_Id}");
+
+        await LadeTrainingsplaeneAsync();
+
+        var count2 = await _trainingsplanService.LadeTrainingsplaeneAsync();
+        Debug.WriteLine($"[DEBUG] Es gibt jetzt {count2.Count()} Pläne in der DB.");
     }
 
     [RelayCommand]
@@ -55,8 +68,8 @@ public partial class SecondViewModel : ObservableObject
     {
         if (plan is null) return;
 
+        await _trainingsplanService.LoescheTrainingsplanAsync(plan);
         Trainingsplaene.Remove(plan);
-        await _trainingsplanService.SpeichereAlleTrainingsplaeneAsync(Trainingsplaene);
     }
 
     // [RelayCommand]
@@ -74,7 +87,7 @@ public partial class SecondViewModel : ObservableObject
     {
         try
         {
-            await _navigator.NavigateBackAsync(this);
+            await _navigator.NavigateBackAsync(this); //TODO Später: Seiten direkt ansprechen
         }
         catch (Exception ex)
         {

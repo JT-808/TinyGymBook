@@ -1,20 +1,43 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Data;
+using SQLite;
 
 namespace Tiny_GymBook.Models;
 
 [Bindable]
 public class Trainingseintrag
 {
-    public Uebung Uebung { get; set; }
+    [PrimaryKey, AutoIncrement]
+    public int Eintrag_Id { get; set; }
+
+    [Indexed]
+    public int Uebung_Id { get; set; }
+
+    [Indexed]
+    public int Trainingsplan_Id { get; set; }
+
+    public string Kommentar { get; set; } = string.Empty;
+
+    [Ignore]
+    public Uebung? Uebung { get; set; }
+
+    [Ignore]
     public ObservableCollection<Satz> Saetze { get; set; } = new();
 
+    // Nur zur Initialisierung – nicht speichern
+    [Ignore]
+    public int StandardWiederholungen { get; set; }
+
+    [Ignore]
+    public double StandardGewicht { get; set; }
+
+    public Trainingseintrag() { }
 
     public Trainingseintrag(Uebung uebung)
     {
         Uebung = uebung.Copy();
+        Uebung_Id = uebung.Uebung_Id;
 
-        // Beispiel: Standard 3 Sätze, 10 Wiederholungen, 0 Gewicht, leerer Kommentar
         for (int i = 1; i <= 3; i++)
         {
             Saetze.Add(new Satz
@@ -30,6 +53,8 @@ public class Trainingseintrag
     public Trainingseintrag(Uebung uebung, int anzahlSaetze, int wiederholungen, double gewicht, string kommentar)
     {
         Uebung = uebung.Copy();
+        Uebung_Id = uebung.Uebung_Id;
+        Kommentar = kommentar;
 
         for (int i = 1; i <= anzahlSaetze; i++)
         {
@@ -41,5 +66,8 @@ public class Trainingseintrag
                 Kommentar = kommentar
             });
         }
+
+        StandardWiederholungen = wiederholungen;
+        StandardGewicht = gewicht;
     }
 }

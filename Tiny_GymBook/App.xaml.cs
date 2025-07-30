@@ -55,7 +55,8 @@ public partial class App : Application
                     services.AddTransient<ShellViewModel>();
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<SecondViewModel>();
-                    services.AddSingleton<ITrainingsplanService, JsonTrainingsplanService>();
+                    //     services.AddSingleton<ITrainingsplanService, JsonTrainingsplanService>();
+                    services.AddSingleton<ITrainingsplanService, SqliteTrainingsplanService>();
                     // Hier Ihre eigenen Services registrieren
                 })
                 .UseNavigation(RegisterRoutes)

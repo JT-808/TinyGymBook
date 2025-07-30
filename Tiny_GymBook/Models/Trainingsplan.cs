@@ -1,13 +1,17 @@
 using System.Collections.Generic;
 using Microsoft.UI.Xaml.Data;
+using SQLite;
 
 namespace Tiny_GymBook.Models;
 
 [Bindable]
 public class Trainingsplan
 {
+    [PrimaryKey, AutoIncrement]
+    public int Trainingsplan_Id { get; set; }
+    [NotNull]
     public string Name { get; set; } = string.Empty;
-
+    [Ignore]
     public List<Uebung> Uebungen { get; set; } = new();
 
     // Parameterloser Konstruktor für JSON-Deserialisierung
