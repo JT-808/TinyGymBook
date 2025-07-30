@@ -32,9 +32,9 @@
                Foreground="DodgerBlue"
                Margin="0,0,0,8"/>
 
-    <TextBlock Grid.Row="1"
-        Text="{Binding Trainingsplaene.Count}"
-        FontSize="18"/>
+    <TextBlock Grid.Row="0"
+               Text="{Binding Trainingsplaene.Count}"
+               FontSize="18"/>
 
     <!-- Liste der Pläne -->
     <ListView Grid.Row="1"
@@ -51,6 +51,9 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
+              <!-- Für Detailansicht -->
+              <ColumnDefinition Width="Auto"/>
+              <!-- Für Löschen -->
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="{x:Bind Name}"
@@ -62,6 +65,16 @@
                     Grid.Column="1"
                     Margin="12,0,0,0"
                     VerticalAlignment="Center"/>
+
+            <Button Content="🗑"
+                    Command="{Binding DataContext.DeletePlanCommand, ElementName=SecondPageRoot}"
+                    CommandParameter="{Binding}"
+                    Grid.Column="2"
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center"
+                    Foreground="Red"/>
+
+
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>

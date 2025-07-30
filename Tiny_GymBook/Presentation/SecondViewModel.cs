@@ -51,14 +51,23 @@ public partial class SecondViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task OpenPlanAsync(Trainingsplan plan)
+    private async Task DeletePlanAsync(Trainingsplan plan)
     {
         if (plan is null) return;
 
-        Debug.WriteLine($"[DEBUG] Öffne Plan: {plan.Name}");
-
-        //  await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this,data: plan);
+        Trainingsplaene.Remove(plan);
+        await _trainingsplanService.SpeichereAlleTrainingsplaeneAsync(Trainingsplaene);
     }
+
+    // [RelayCommand]
+    // private async Task OpenPlanAsync(Trainingsplan plan)
+    // {
+    //     if (plan is null) return;
+
+    //     Debug.WriteLine($"[DEBUG] Öffne Plan: {plan.Name}");
+
+    //       await _navigator.NavigateViewModelAsync<PlanDetailViModel>(this,data: plan);
+    // }
 
     [RelayCommand]
     private async Task NavigateToHomeAsync()
