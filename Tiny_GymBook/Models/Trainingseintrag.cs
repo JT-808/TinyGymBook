@@ -7,10 +7,6 @@ namespace Tiny_GymBook.Models;
 [Bindable]
 public class Trainingseintrag
 {
-    private int v1;
-    private int v2;
-    private int v3;
-    private string v4;
 
     [PrimaryKey, AutoIncrement]
     public int Eintrag_Id { get; set; } // Foreign Key zu Trainingsplan

@@ -55,6 +55,7 @@ public partial class App : Application
                     services.AddTransient<ShellViewModel>();
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<SecondViewModel>();
+                    services.AddTransient<PlanDetailViewModel>();
                     //     services.AddSingleton<ITrainingsplanService, JsonTrainingsplanService>();
                     services.AddSingleton<ITrainingsplanService, SqliteTrainingsplanService>();
                     // Hier Ihre eigenen Services registrieren
@@ -77,7 +78,8 @@ public partial class App : Application
         views.Register(
             new ViewMap(ViewModel: typeof(ShellViewModel)),
             new ViewMap<MainPage, MainViewModel>(),
-            new DataViewMap<SecondPage, SecondViewModel, Entity>()
+             new ViewMap<SecondPage, SecondViewModel>(),
+            new ViewMap<PlanDetail, PlanDetailViewModel>()
         );
 
         routes.Register(
@@ -86,6 +88,7 @@ public partial class App : Application
                 [
                     new ("Main", View: views.FindByViewModel<MainViewModel>(), IsDefault:true),
                     new ("Second", View: views.FindByViewModel<SecondViewModel>()),
+                    new ("PlanDetail", View: views.FindByViewModel<PlanDetailViewModel>())
                 ]
             )
         );
