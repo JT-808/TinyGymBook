@@ -10,7 +10,6 @@ namespace Tiny_GymBook.Presentation;
 public partial class MainViewModel : ObservableObject
 {
 
-    [ObservableProperty]
     private INavigator _navigator;
 
     [ObservableProperty]
@@ -38,7 +37,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToPlaeneAsync()
     {
-        await Navigator.NavigateViewModelAsync<SecondViewModel>(this);
+        await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
     }
 
     private void LadeBeispielDaten()

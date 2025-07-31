@@ -19,6 +19,8 @@ public class Trainingseintrag
 
     public string Kommentar { get; set; } = string.Empty;
 
+    public string Tag { get; set; } = "";
+
     public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
 
     [Ignore]

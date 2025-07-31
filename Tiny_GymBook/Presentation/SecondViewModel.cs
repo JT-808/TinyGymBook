@@ -50,7 +50,6 @@ public partial class SecondViewModel : ObservableObject
         Debug.WriteLine($"[DEBUG] Es gibt jetzt {count.Count()} Pläne in der DB.");
 
         var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-        // NICHT explizit neuerPlan.Trainingsplan_Id setzen!
 
         await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan);
 
