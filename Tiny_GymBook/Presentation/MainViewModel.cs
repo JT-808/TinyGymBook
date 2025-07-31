@@ -47,8 +47,8 @@ public partial class MainViewModel : ObservableObject
         var kniebeugen = new Uebung("Kniebeugen", Muskelgruppe.Beine);
 
         // Verwende Konstruktor mit Satz-Parametern, damit Saetze direkt gesetzt werden
-        Eintraege.Add(new Trainingseintrag(bankdruecken, 3, 12, 80, "Leichtes Aufwärmen"));
-        Eintraege.Add(new Trainingseintrag(kniebeugen, 4, 10, 120, "Mit Gewichtsgürtel"));
+        Eintraege.Add(new Trainingseintrag(bankdruecken, 1, 3, 12, 80, "Leichtes Aufwärmen", "2025-09-01"));
+        Eintraege.Add(new Trainingseintrag(kniebeugen, 1, 4, 10, 120, "Mit Gewichtsgürtel", "2025-09-01"));
     }
 
     [RelayCommand]

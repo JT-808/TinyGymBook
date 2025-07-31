@@ -36,7 +36,6 @@ namespace Tiny_GymBook.Services.Trainingsplanservice
             await _db.CreateTableAsync<Uebung>();
             await _db.CreateTableAsync<Trainingseintrag>();
             await _db.CreateTableAsync<Satz>();
-            await _db.CreateTableAsync<Muskelgruppe>();
         }
 
         public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync()
@@ -65,6 +64,9 @@ namespace Tiny_GymBook.Services.Trainingsplanservice
         // {
         //     throw new NotImplementedException("JSON-Export nicht implementiert (nur für Testzwecke).");
         // }
+
+
+
 
         // === Erweiterbar ===
         // Hier kannst du analog weitere Methoden bauen, etwa:

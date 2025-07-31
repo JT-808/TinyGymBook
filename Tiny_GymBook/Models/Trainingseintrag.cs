@@ -7,16 +7,23 @@ namespace Tiny_GymBook.Models;
 [Bindable]
 public class Trainingseintrag
 {
+    private int v1;
+    private int v2;
+    private int v3;
+    private string v4;
+
     [PrimaryKey, AutoIncrement]
-    public int Eintrag_Id { get; set; }
+    public int Eintrag_Id { get; set; } // Foreign Key zu Trainingsplan
 
     [Indexed]
-    public int Uebung_Id { get; set; }
+    public int Uebung_Id { get; set; } // Foreign Key zu Uebung
 
     [Indexed]
     public int Trainingsplan_Id { get; set; }
 
     public string Kommentar { get; set; } = string.Empty;
+
+    public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
 
     [Ignore]
     public Uebung? Uebung { get; set; }
@@ -38,6 +45,7 @@ public class Trainingseintrag
         Uebung = uebung.Copy();
         Uebung_Id = uebung.Uebung_Id;
 
+
         for (int i = 1; i <= 3; i++)
         {
             Saetze.Add(new Satz
@@ -50,11 +58,13 @@ public class Trainingseintrag
         }
     }
 
-    public Trainingseintrag(Uebung uebung, int anzahlSaetze, int wiederholungen, double gewicht, string kommentar)
+    public Trainingseintrag(Uebung uebung, int trainingsplanId, int anzahlSaetze, int wiederholungen, double gewicht, string kommentar, string? datum = null)
     {
         Uebung = uebung.Copy();
         Uebung_Id = uebung.Uebung_Id;
         Kommentar = kommentar;
+        Trainingsplan_Id = trainingsplanId;
+        Training_Date = datum ?? DateTime.Today.ToString("yyyy-MM-dd");
 
         for (int i = 1; i <= anzahlSaetze; i++)
         {
@@ -70,4 +80,6 @@ public class Trainingseintrag
         StandardWiederholungen = wiederholungen;
         StandardGewicht = gewicht;
     }
+
+
 }
