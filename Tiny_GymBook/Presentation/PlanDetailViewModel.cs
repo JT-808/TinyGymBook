@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
+using Tiny_GymBook.Services.Trainingsplanservice;
 
 namespace Tiny_GymBook.Presentation;
 
@@ -15,6 +16,7 @@ public partial class PlanDetailViewModel : ObservableObject
 
     [ObservableProperty]
     private Trainingsplan trainingsplan;
+    private readonly ITrainingsplanService _trainingsplanService;
 
 
     public ObservableCollection<Uebung> Uebungen { get; } = new();
@@ -27,9 +29,10 @@ public partial class PlanDetailViewModel : ObservableObject
     public IEnumerable<IGrouping<string, Trainingseintrag>> GruppierteEintraege
      => AlleEintraege.GroupBy(e => e.Tag);
 
-    public PlanDetailViewModel(INavigator navigator)
+    public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
     {
-        _navigator = navigator;
+        _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+        _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
 
         // Beispiel-Daten
         AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Bankdrücken" }) { Tag = "Tag 1" });
@@ -64,10 +67,11 @@ public partial class PlanDetailViewModel : ObservableObject
     //Naviagation -> Soll später in die Shell
 
     [RelayCommand]
-    private async Task BackAsync()
+    private async Task SaveAndGoBackAsync(Trainingsplan plan)
     {
         try
         {
+            await _trainingsplanService.SpeichereTrainingsplanAsync(plan);
             await _navigator.NavigateBackAsync(this);
         }
         catch (Exception ex)
