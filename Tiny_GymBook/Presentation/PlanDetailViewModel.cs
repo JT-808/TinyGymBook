@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
+using Uno.Extensions.Navigation;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Tiny_GymBook.Services.Trainingsplanservice;
 
 namespace Tiny_GymBook.Presentation;
@@ -34,6 +36,7 @@ public partial class PlanDetailViewModel : ObservableObject
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
         _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
 
+
         // Beispiel-Daten
         AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Bankdrücken" }) { Tag = "Tag 1" });
         AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Schrägbankdrücken" }) { Tag = "Tag 1" });
@@ -42,11 +45,31 @@ public partial class PlanDetailViewModel : ObservableObject
 
 
 
+
     [RelayCommand]
-    private void AddUebung()
+    private void AddUebungalt()
     {
         Uebungen.Add(new Uebung { Name = "Neue Übung" });
     }
+
+
+    [RelayCommand]
+    private async Task AddUebungDBAsync()
+    {
+        Debug.WriteLine("[Trainingsplan]", Trainingsplan);
+        var neueUebung = new Uebung
+        {
+            Name = "Neue Übung",
+            Trainingsplan_Id = Trainingsplan.Trainingsplan_Id
+        };
+        Debug.WriteLine("[]TP-ID]", neueUebung);
+        await _trainingsplanService.SpeichereUebung(neueUebung);
+
+        Uebungen.Add(neueUebung);
+        Trainingsplan.Uebungen.Add(neueUebung);
+    }
+
+
 
     [RelayCommand]
     public void AddUebungToTag(string tag)

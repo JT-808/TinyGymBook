@@ -39,6 +39,7 @@ public partial class SecondViewModel : ObservableObject
         {
             Debug.WriteLine($"[DEBUG] Geladen: {plan.Name} mit {plan.Uebungen.Count} Übungen");
             Debug.WriteLine($"[DEBUG] DB-Plan: {plan.Trainingsplan_Id}, Name = {plan.Name}");
+
             Trainingsplaene.Add(plan);
         }
     }
@@ -81,11 +82,13 @@ public partial class SecondViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task NavigateToHomeAsync()
+    private async Task SaveAndGoBackAsync(Trainingsplan plan)
     {
         try
         {
-            await _navigator.NavigateBackAsync(this); //TODO Später: Seiten direkt ansprechen
+            await _trainingsplanService.SpeichereTrainingsplanAsync(plan);
+            await _navigator.NavigateBackAsync(this);
+
         }
         catch (Exception ex)
         {

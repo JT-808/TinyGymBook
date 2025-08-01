@@ -14,6 +14,9 @@ public class Uebung
     [Indexed]
     public Muskelgruppe Muskelgruppe { get; set; }
 
+    //Zusatzälich um direkt Uebungen von Trainingsplan direkt zu bekommen
+    public int Trainingsplan_Id { get; set; }
+
     public Uebung() { }
 
     public Uebung(string name, Muskelgruppe muskelgruppe)

@@ -60,7 +60,6 @@
                        FontSize="16"
                        VerticalAlignment="Center"/>
             <Button Content=">"
-                    Click="DebugClick"
                     Command="{Binding DataContext.OpenPlanCommand, ElementName=SecondPageRoot}"
                     CommandParameter="{x:Bind}"
                     Grid.Column="1"
@@ -94,7 +93,7 @@
                 Style="{StaticResource BottomTabBarStyle}">
       <utu:TabBar.Items>
         <utu:TabBarItem Content="HOME"
-                        Command="{Binding NavigateToHomeCommand}">
+                        Command="{Binding SaveAndGoBackCommand}">
           <utu:TabBarItem.Icon>
             <FontIcon Glyph="{StaticResource HomeIcon}"/>
           </utu:TabBarItem.Icon>

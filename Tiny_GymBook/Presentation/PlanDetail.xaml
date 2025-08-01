@@ -15,20 +15,23 @@
                         <StackPanel Margin="0,16,0,0">
                             <!-- Tag-Überschrift -->
                             <TextBlock Text="{Binding Key}"
-                                    FontSize="20"
-                                    FontWeight="Bold"/>
+                                       FontSize="20"
+                                       FontWeight="Bold"/>
                             <ItemsControl ItemsSource="{Binding}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Uebung.Name}"
-                                                FontSize="16"
-                                                Margin="12,0,0,0"/>
+                                                   FontSize="16"
+                                                   Margin="12,0,0,0"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             <!-- Button für diesen Tag -->
                             <Button Content="Übung hinzufügen"
                                     Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
+                                    CommandParameter="{Binding Key}"/>
+                            <Button Content="Übung zur DB hinzufügen"
+                                    Command="{Binding DataContext.AddUebungDBCommand, ElementName=RootGrid}"
                                     CommandParameter="{Binding Key}"/>
                         </StackPanel>
                     </DataTemplate>
@@ -37,12 +40,12 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="1"
-                Orientation="Horizontal"
-                HorizontalAlignment="Center">
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
             <Button Content="Tag hinzufügen"
                     Command="{Binding AddTagCommand}"/>
-            <Button Content="Zurück"
-                    Command="{Binding BackCommand}"/>
+            <Button Content="Speichern und zurück"
+                    Command="{Binding SaveAndGoBackCommand}"/>
         </StackPanel>
     </Grid>
 
