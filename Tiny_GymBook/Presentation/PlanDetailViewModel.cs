@@ -35,15 +35,12 @@ public partial class PlanDetailViewModel : ObservableObject
     }
 
 
-
     partial void OnTrainingsplanChanged(Trainingsplan? value)
     {
         Debug.WriteLine("[DEBUG] OnTrainingsplanChanged wurde aufgerufen!");
         Debug.WriteLine($"[DEBUG] Trainingsplan gesetzt: {value?.Name} / ID: {value?.Trainingsplan_Id}");
         OnPropertyChanged(nameof(Uebungen));
     }
-
-
 
     [RelayCommand]
     private async Task AddUebungDBAsync()
@@ -57,9 +54,17 @@ public partial class PlanDetailViewModel : ObservableObject
             Trainingsplan_Id = Trainingsplan.Trainingsplan_Id
         };
 
+        Debug.WriteLine($"[ADD] Vor Save: PlanId={Trainingsplan.Trainingsplan_Id}, Uebung.PlanId={neueUebung.Trainingsplan_Id}");
         await _trainingsplanService.SpeichereUebung(neueUebung);
-        Trainingsplan.Uebungen.Add(neueUebung);
+
+        // Reload der gesamten Übungen (sauberer als nur .Add)
+        var uebungenReloaded = await _trainingsplanService.LadeUebungenZuPlanAsync(Trainingsplan.Trainingsplan_Id);
+        Trainingsplan.Uebungen = new ObservableCollection<Uebung>(uebungenReloaded);
+        OnPropertyChanged(nameof(Uebungen));
+
+        Debug.WriteLine($"[CHECK] Übungen für Plan {Trainingsplan.Trainingsplan_Id}: {string.Join(", ", uebungenReloaded.Select(u => $"{u.Name} (Id={u.Uebung_Id})"))}");
     }
+
 
     [RelayCommand]
     public void AddUebungToTag(string tag)

@@ -13,6 +13,11 @@ public interface ITrainingsplanService
 
     Task SpeichereUebung(Uebung uebung);
 
+    Task<bool> UebungWirklichGespeichertUndZugeordnet(Uebung uebung);
+
+
+    Task InitAsync();
+
     // Optional: Nur im Json-Service sinnvoll implementiert
     //Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene);
 }

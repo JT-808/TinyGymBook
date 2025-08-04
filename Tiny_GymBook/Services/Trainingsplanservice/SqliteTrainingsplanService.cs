@@ -27,10 +27,9 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         Console.WriteLine("[DEBUG] SQLite-Pfad: " + dbPfad);
 
         _db = new SQLiteAsyncConnection(dbPfad);
-        _ = InitAsync();
     }
 
-    private async Task InitAsync()
+    public async Task InitAsync()
     {
         // Tabellen erzeugen, falls sie noch nicht existieren
         await _db.CreateTableAsync<Trainingsplan>();
@@ -119,18 +118,12 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
+    public async Task<bool> UebungWirklichGespeichertUndZugeordnet(Uebung uebung)
+    {
+        var gespeicherte = await _db.Table<Uebung>().Where(u => u.Uebung_Id == uebung.Uebung_Id).FirstOrDefaultAsync();
+        if (gespeicherte == null)
+            return false;
+        return gespeicherte.Trainingsplan_Id == uebung.Trainingsplan_Id;
+    }
 
-    // Für Kompatibilität mit Interface (JSON-Export kannst du später ausbauen)
-    // public Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene)
-    // {
-    //     throw new NotImplementedException("JSON-Export nicht implementiert (nur für Testzwecke).");
-    // }
-
-
-
-
-    // === Erweiterbar ===
-    // Hier kannst du analog weitere Methoden bauen, etwa:
-    // - TrainingsplanByIdAsync(int id)
-    // - Übungen/Einträge/Sätze laden & speichern
 }

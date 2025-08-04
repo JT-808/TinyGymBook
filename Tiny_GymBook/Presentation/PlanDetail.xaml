@@ -27,7 +27,7 @@
                 </ListView.ItemTemplate>
             </ListView>
             <Button Content="Übung (DB) hinzufügen"
-                    Command="{Binding ViewModel.AddUebungDBCommand}"/>
+                    Command="{Binding AddUebungDBCommand}"/>
         </StackPanel>
 
         <!-- Gruppierte Einträge (wie gehabt) -->

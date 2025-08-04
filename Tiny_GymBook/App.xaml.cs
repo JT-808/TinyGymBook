@@ -70,7 +70,11 @@ public partial class App : Application
 #endif
         MainWindow.SetWindowIcon();
 
+
+
         Host = await builder.NavigateAsync<Shell>();
+
+
     }
 
     private static void RegisterRoutes(IViewRegistry views, IRouteRegistry routes)
