@@ -75,6 +75,9 @@ public partial class App : Application
         Host = await builder.NavigateAsync<Shell>();
 
 
+        var trainingsplanService = Host.Services.GetRequiredService<ITrainingsplanService>();
+        await trainingsplanService.InitAsync();
+
     }
 
     private static void RegisterRoutes(IViewRegistry views, IRouteRegistry routes)
