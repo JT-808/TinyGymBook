@@ -18,7 +18,7 @@
                        FontWeight="SemiBold"
                        FontSize="18"
                        Margin="0,0,0,4"/>
-            <ListView ItemsSource="{Binding ViewModel.Uebungen, Mode=OneWay}">
+            <ListView ItemsSource="{Binding Uebungen, Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:Uebung">
                         <TextBlock Text="{Binding Name}"
