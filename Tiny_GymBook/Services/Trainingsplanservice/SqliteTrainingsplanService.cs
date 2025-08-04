@@ -1,6 +1,7 @@
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -44,52 +45,48 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         var alleUebungen = await _db.Table<Uebung>().ToListAsync();
         foreach (var plan in plaene)
         {
-            plan.Uebungen = alleUebungen
-                .Where(u => u.Trainingsplan_Id == plan.Trainingsplan_Id)
-                .ToList();
+            plan.Uebungen = new ObservableCollection<Uebung>(
+                alleUebungen.Where(u => u.Trainingsplan_Id == plan.Trainingsplan_Id)
+            );
+            Debug.WriteLine($"[DEBUG] Plan: {plan.Name}, Id={plan.Trainingsplan_Id}, Anzahl Übungen: {plan.Uebungen.Count}");
+            foreach (var u in plan.Uebungen)
+            {
+                Debug.WriteLine($"    [DEBUG] Übung: {u.Name}, Id={u.Uebung_Id}, PlanId={u.Trainingsplan_Id}");
+            }
         }
         return plaene;
     }
 
     public async Task SpeichereTrainingsplanAsync(Trainingsplan plan)
     {
-        // 1. Plan speichern
+        if (plan.Trainingsplan_Id == 0)
+        {
+            await _db.InsertAsync(plan);
+            Debug.WriteLine($"[DEBUG] Insert Plan: ID now {plan.Trainingsplan_Id}");
+        }
+        else
+        {
+            var result = await _db.UpdateAsync(plan);
+            Debug.WriteLine($"[DEBUG] UpdateAsync RESULT: {result}");
+        }
 
-        await _db.InsertAsync(plan);
-
-
-
-        //    2. JETZT die Plan-ID an allen Übungen setzen!
-        // if (plan.Uebungen != null)
-        // {
-        //     foreach (var uebung in plan.Uebungen)
-        //     {
-        //         uebung.Trainingsplan_Id = plan.Trainingsplan_Id;
-        //         if (uebung.Uebung_Id == 0)
-        //             await _db.InsertAsync(uebung);
-        //         else
-        //             await _db.UpdateAsync(uebung);
-        //     }
-
-
-        // if (plan.Uebungen != null)
-        // {
-        //     foreach (var uebung in plan.Uebungen)
-        //     {
-        //         uebung.Trainingsplan_Id = plan.Trainingsplan_Id;
-
-        //         await _db.InsertAsync(uebung);
-        //     }
-        // }
-
-
-
-    }
-
-
-    public async Task SpeichereUebung(Uebung uebung)
-    {
-        await _db.InsertAsync(uebung);
+        if (plan.Uebungen != null)
+        {
+            foreach (var uebung in plan.Uebungen)
+            {
+                uebung.Trainingsplan_Id = plan.Trainingsplan_Id;
+                if (uebung.Uebung_Id == 0)
+                {
+                    await _db.InsertAsync(uebung);
+                    Debug.WriteLine($"[DEBUG] Übung '{uebung.Name}' gespeichert mit Id={uebung.Uebung_Id} für Plan {plan.Name} ({plan.Trainingsplan_Id})");
+                }
+                else
+                {
+                    await _db.UpdateAsync(uebung);
+                    Debug.WriteLine($"[DEBUG] Übung '{uebung.Name}' aktualisiert, Id={uebung.Uebung_Id}, PlanId={uebung.Trainingsplan_Id}");
+                }
+            }
+        }
     }
 
 
@@ -105,6 +102,20 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         return await _db.Table<Uebung>()
             .Where(u => u.Trainingsplan_Id == trainingsplanId)
             .ToListAsync();
+    }
+
+    public async Task SpeichereUebung(Uebung uebung)
+    {
+        if (uebung.Uebung_Id == 0)
+        {
+            await _db.InsertAsync(uebung);
+            Debug.WriteLine($"[DEBUG] Einzelübung gespeichert: {uebung.Name}, Id={uebung.Uebung_Id}, PlanId={uebung.Trainingsplan_Id}");
+        }
+        else
+        {
+            await _db.UpdateAsync(uebung);
+            Debug.WriteLine($"[DEBUG] Einzelübung aktualisiert: {uebung.Name}, Id={uebung.Uebung_Id}, PlanId={uebung.Trainingsplan_Id}");
+        }
     }
 
 

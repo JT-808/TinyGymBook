@@ -1,75 +1,65 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
 using Uno.Extensions.Navigation;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Tiny_GymBook.Services.Trainingsplanservice;
+
+using Microsoft.UI.Xaml.Data;
 
 namespace Tiny_GymBook.Presentation;
 
 [Bindable]
 public partial class PlanDetailViewModel : ObservableObject
 {
-
     private readonly INavigator _navigator;
-
-    [ObservableProperty]
-    private Trainingsplan trainingsplan;
     private readonly ITrainingsplanService _trainingsplanService;
 
+    [ObservableProperty]
+    private Trainingsplan? trainingsplan;
 
-    public ObservableCollection<Uebung> Uebungen { get; } = new();
-
-    public ObservableCollection<Trainingseintrag> AlleEintraege { get; set; } = new();
-
-    // Für das UI gruppiert nach Tag:
-    public ObservableCollection<ObservableCollection<Trainingseintrag>> Tage { get; set; } = new();
+    public ObservableCollection<Uebung>? Uebungen => Trainingsplan?.Uebungen;
+    public ObservableCollection<Trainingseintrag> AlleEintraege { get; } = new();
 
     public IEnumerable<IGrouping<string, Trainingseintrag>> GruppierteEintraege
-     => AlleEintraege.GroupBy(e => e.Tag);
+        => AlleEintraege.GroupBy(e => e.Tag);
 
-    public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
+    public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
     {
+        Debug.WriteLine("[DEBUG] PlanDetailViewModel Konstruktor aufgerufen!");
+
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
         _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
-
-
-        // Beispiel-Daten
-        AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Bankdrücken" }) { Tag = "Tag 1" });
-        AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Schrägbankdrücken" }) { Tag = "Tag 1" });
-        AlleEintraege.Add(new Trainingseintrag(new Uebung { Name = "Kniebeugen" }) { Tag = "Tag 2" });
+        Trainingsplan = plan;
     }
 
 
 
-
-    [RelayCommand]
-    private void AddUebungalt()
+    partial void OnTrainingsplanChanged(Trainingsplan? value)
     {
-        Uebungen.Add(new Uebung { Name = "Neue Übung" });
+        Debug.WriteLine("[DEBUG] OnTrainingsplanChanged wurde aufgerufen!");
+        Debug.WriteLine($"[DEBUG] Trainingsplan gesetzt: {value?.Name} / ID: {value?.Trainingsplan_Id}");
+        OnPropertyChanged(nameof(Uebungen));
     }
+
 
 
     [RelayCommand]
     private async Task AddUebungDBAsync()
     {
-        Debug.WriteLine("[Trainingsplan]", Trainingsplan);
+        if (Trainingsplan == null)
+            return;
+
         var neueUebung = new Uebung
         {
             Name = "Neue Übung",
             Trainingsplan_Id = Trainingsplan.Trainingsplan_Id
         };
-        Debug.WriteLine("[]TP-ID]", neueUebung);
-        await _trainingsplanService.SpeichereUebung(neueUebung);
 
-        Uebungen.Add(neueUebung);
+        await _trainingsplanService.SpeichereUebung(neueUebung);
         Trainingsplan.Uebungen.Add(neueUebung);
     }
-
-
 
     [RelayCommand]
     public void AddUebungToTag(string tag)
@@ -86,15 +76,17 @@ public partial class PlanDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(GruppierteEintraege));
     }
 
-
-    //Naviagation -> Soll später in die Shell
-
     [RelayCommand]
-    private async Task SaveAndGoBackAsync(Trainingsplan plan)
+    private async Task SaveAndGoBackAsync()
     {
+        if (Trainingsplan == null)
+        {
+            Debug.WriteLine("[FEHLER] Trainingsplan ist null! (SaveAndGoBackAsync)");
+            return;
+        }
         try
         {
-            await _trainingsplanService.SpeichereTrainingsplanAsync(plan);
+            await _trainingsplanService.SpeichereTrainingsplanAsync(Trainingsplan);
             await _navigator.NavigateBackAsync(this);
         }
         catch (Exception ex)
@@ -102,7 +94,4 @@ public partial class PlanDetailViewModel : ObservableObject
             Debug.WriteLine($"[FEHLER] Back-Navigation: {ex.Message}");
         }
     }
-
-
-
 }

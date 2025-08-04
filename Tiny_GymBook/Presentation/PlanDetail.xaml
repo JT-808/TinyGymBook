@@ -4,16 +4,38 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Tiny_GymBook.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid x:Name="RootGrid">
-        <ScrollViewer>
+    <Grid x:Name="RootGrid"
+          RowDefinitions="Auto,*,Auto">
+
+        <!-- Alle Übungen im aktuellen Plan -->
+        <StackPanel Grid.Row="0"
+                    Margin="0,0,0,8">
+            <TextBlock Text="Alle Übungen im Plan:"
+                       FontWeight="SemiBold"
+                       FontSize="18"
+                       Margin="0,0,0,4"/>
+            <ListView ItemsSource="{Binding ViewModel.Uebungen, Mode=OneWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Uebung">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="16"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Content="Übung (DB) hinzufügen"
+                    Command="{Binding ViewModel.AddUebungDBCommand}"/>
+        </StackPanel>
+
+        <!-- Gruppierte Einträge (wie gehabt) -->
+        <ScrollViewer Grid.Row="1">
             <ItemsControl ItemsSource="{Binding GruppierteEintraege}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="0,16,0,0">
-                            <!-- Tag-Überschrift -->
                             <TextBlock Text="{Binding Key}"
                                        FontSize="20"
                                        FontWeight="Bold"/>
@@ -26,12 +48,8 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <!-- Button für diesen Tag -->
-                            <Button Content="Übung hinzufügen"
+                            <Button Content="Übung (nur UI) zu Tag"
                                     Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
-                                    CommandParameter="{Binding Key}"/>
-                            <Button Content="Übung zur DB hinzufügen"
-                                    Command="{Binding DataContext.AddUebungDBCommand, ElementName=RootGrid}"
                                     CommandParameter="{Binding Key}"/>
                         </StackPanel>
                     </DataTemplate>
@@ -39,14 +57,15 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <StackPanel Grid.Row="1"
+        <!-- Footer-Buttons -->
+        <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Center"
+                    Margin="0,8,0,8">
             <Button Content="Tag hinzufügen"
                     Command="{Binding AddTagCommand}"/>
             <Button Content="Speichern und zurück"
                     Command="{Binding SaveAndGoBackCommand}"/>
         </StackPanel>
     </Grid>
-
 </Page>

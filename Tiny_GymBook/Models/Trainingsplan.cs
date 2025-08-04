@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Data;
 using SQLite;
 
@@ -11,17 +11,16 @@ public class Trainingsplan
     public int Trainingsplan_Id { get; set; }
     [NotNull]
     public string Name { get; set; } = string.Empty;
-    [Ignore]
-    public List<Uebung> Uebungen { get; set; } = new();
 
-    // Parameterloser Konstruktor für JSON-Deserialisierung
+    [Ignore]
+    public ObservableCollection<Uebung> Uebungen { get; set; } = new();
+
     public Trainingsplan() { }
 
-    // Optionaler Komfort-Konstruktor für deinen Code
-    public Trainingsplan(string name, List<Uebung> uebungen)
+    public Trainingsplan(string name, IEnumerable<Uebung> uebungen)
     {
         Name = name;
-        Uebungen = uebungen;
+        Uebungen = new ObservableCollection<Uebung>(uebungen);
     }
 
     public void AddUebung(Uebung uebung) => Uebungen.Add(uebung);

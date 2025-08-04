@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.UI.Xaml.Data;
 
 namespace Tiny_GymBook.Presentation;
@@ -10,6 +11,7 @@ public class ShellViewModel
     public ShellViewModel(
         INavigator navigator)
     {
+        Debug.WriteLine("[DEBUG] ShellViewModel Konstruktor aufgerufen!");
         _navigator = navigator;
         // Add code here to initialize or attach event handlers to singleton services
     }

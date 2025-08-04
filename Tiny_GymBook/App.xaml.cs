@@ -79,7 +79,8 @@ public partial class App : Application
             new ViewMap(ViewModel: typeof(ShellViewModel)),
             new ViewMap<MainPage, MainViewModel>(),
              new ViewMap<SecondPage, SecondViewModel>(),
-            new ViewMap<PlanDetail, PlanDetailViewModel>()
+            //  new ViewMap<PlanDetail, PlanDetailViewModel>(),
+            new DataViewMap<PlanDetail, PlanDetailViewModel, Trainingsplan>()
         );
 
         routes.Register(

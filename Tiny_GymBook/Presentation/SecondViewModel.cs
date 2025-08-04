@@ -18,7 +18,7 @@ public partial class SecondViewModel : ObservableObject
     private ObservableCollection<Trainingsplan> trainingsplaene = new();
 
     [ObservableProperty]
-    private Trainingsplan? selectedPlan;
+    private Trainingsplan? trainingsplan;
 
     public SecondViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
     {
@@ -47,20 +47,23 @@ public partial class SecondViewModel : ObservableObject
     [RelayCommand]
     private async Task AddPlanAsync()
     {
-        var count = await _trainingsplanService.LadeTrainingsplaeneAsync();
-        Debug.WriteLine($"[DEBUG] Es gibt jetzt {count.Count()} Pläne in der DB.");
-
+        // Plan erzeugen und speichern
         var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-
         await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan);
 
-        // Die ID sollte jetzt automatisch gesetzt sein
-        Debug.WriteLine($"[DEBUG] Neuer Plan nach Insert: ID = {neuerPlan.Trainingsplan_Id}");
-
+        // Pläne neu laden
         await LadeTrainingsplaeneAsync();
 
-        var count2 = await _trainingsplanService.LadeTrainingsplaeneAsync();
-        Debug.WriteLine($"[DEBUG] Es gibt jetzt {count2.Count()} Pläne in der DB.");
+        // Jetzt die *aktuelle* Instanz (mit ID!) holen
+        var insertedPlan = Trainingsplaene.OrderByDescending(p => p.Trainingsplan_Id).FirstOrDefault();
+
+        if (insertedPlan != null)
+        {
+            Debug.WriteLine($"[DEBUG] Navigiere direkt zum neuen Plan: {insertedPlan.Name}, ID: {insertedPlan.Trainingsplan_Id}");
+
+            // Jetzt korrekt navigieren
+            await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, data: insertedPlan);
+        }
     }
 
     [RelayCommand]
@@ -69,21 +72,22 @@ public partial class SecondViewModel : ObservableObject
         if (plan is null) return;
 
         await _trainingsplanService.LoescheTrainingsplanAsync(plan);
-        Trainingsplaene.Remove(plan);
+        await LadeTrainingsplaeneAsync(); // <-- jetzt garantiert aktuell
     }
 
     [RelayCommand]
     private async Task OpenPlanAsync(Trainingsplan plan)
     {
-        Debug.WriteLine($"[DEBUG] OpenPlanAsync ausgeführt für Plan: {plan?.Name}");
-        if (plan is null) return;
-        // Navigation zur PlanDetail-Seite, Daten als Parameter übergeben
+        Debug.WriteLine($"[DEBUG] Navigiere zu PlanDetailViewModel mit Plan: {plan?.Name}, ID: {plan?.Trainingsplan_Id}");
         await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, data: plan);
     }
 
     [RelayCommand]
     private async Task SaveAndGoBackAsync(Trainingsplan plan)
     {
+        if (plan == null)
+            return;
+
         try
         {
             await _trainingsplanService.SpeichereTrainingsplanAsync(plan);

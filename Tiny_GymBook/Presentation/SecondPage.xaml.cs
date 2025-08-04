@@ -7,10 +7,8 @@ public sealed partial class SecondPage : Page
     public SecondPage()
     {
         this.InitializeComponent();
-        this.Loaded += (s, e) =>
-       {
-           Debug.WriteLine($"[DEBUG] Loaded DataContext: {this.DataContext?.GetType().Name}");
-       };
+        Debug.WriteLine($"[DEBUG] DataContext: {this.DataContext?.GetType().Name}");
+
     }
 }
 
