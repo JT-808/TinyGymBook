@@ -24,9 +24,6 @@ public partial class PlanDetailViewModel : ObservableObject
     public ObservableCollection<Tag> Tage { get; } = new();
     public ObservableCollection<Trainingseintrag> AlleEintraege { get; } = new();
 
-    // Gib Einträge für einen bestimmten Tag
-    public IEnumerable<Trainingseintrag> GetEintraegeFuerTag(Tag tag)
-        => AlleEintraege.Where(e => e.TagId == tag.TagId);
 
     public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
     {
@@ -40,6 +37,7 @@ public partial class PlanDetailViewModel : ObservableObject
         if (!Tage.Any())
             Tage.Add(new Tag { Name = "Tag 1", Reihenfolge = 1 });
 
+
         _ = LadeTageUndEintraegeAsync();
     }
 
@@ -49,6 +47,42 @@ public partial class PlanDetailViewModel : ObservableObject
         Debug.WriteLine($"[DEBUG] Trainingsplan gesetzt: {value?.Name} / ID: {value?.Trainingsplan_Id}");
         OnPropertyChanged(nameof(Uebungen));
     }
+
+
+    public async Task LadeTageUndEintraegeAsync()
+    {
+        if (Trainingsplan is null) return;
+
+        var tageAusDb = await _trainingsplanService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
+        var eintraegeAusDb = await _trainingsplanService.LadeTrainingseintraegeAsync(Trainingsplan.Trainingsplan_Id);
+
+        Tage.Clear();
+        AlleEintraege.Clear();
+
+        foreach (var tag in tageAusDb)
+        {
+            tag.Eintraege.Clear();
+            var zugeordneteEintraege = eintraegeAusDb.Where(e => e.TagId == tag.TagId).ToList();
+            foreach (var eintrag in zugeordneteEintraege)
+                tag.Eintraege.Add(eintrag);
+
+            Tage.Add(tag);
+        }
+        foreach (var eintrag in eintraegeAusDb)
+            AlleEintraege.Add(eintrag);
+
+        OnPropertyChanged(nameof(Tage));
+        OnPropertyChanged(nameof(AlleEintraege));
+    }
+
+    // Gib Einträge für einen bestimmten Tag
+    // Für später! (Wird aktuell nicht genutzt)
+    public IEnumerable<Trainingseintrag> GetEintraegeFuerTag(Tag tag)
+        => AlleEintraege.Where(e => e.TagId == tag.TagId);
+
+    //
+    // ********************** Buttons *********************************
+    //
 
     [RelayCommand]
     public async Task AddUebungToTagAsync(Tag tag)
@@ -87,33 +121,6 @@ public partial class PlanDetailViewModel : ObservableObject
         await _trainingsplanService.SpeichereTagAsync(newTag);
         Tage.Add(newTag);
         OnPropertyChanged(nameof(Tage));
-    }
-
-
-    public async Task LadeTageUndEintraegeAsync()
-    {
-        if (Trainingsplan is null) return;
-
-        var tageAusDb = await _trainingsplanService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
-        var eintraegeAusDb = await _trainingsplanService.LadeTrainingseintraegeAsync(Trainingsplan.Trainingsplan_Id);
-
-        Tage.Clear();
-        AlleEintraege.Clear();
-
-        foreach (var tag in tageAusDb)
-        {
-            tag.Eintraege.Clear();
-            var zugeordneteEintraege = eintraegeAusDb.Where(e => e.TagId == tag.TagId).ToList();
-            foreach (var eintrag in zugeordneteEintraege)
-                tag.Eintraege.Add(eintrag);
-
-            Tage.Add(tag);
-        }
-        foreach (var eintrag in eintraegeAusDb)
-            AlleEintraege.Add(eintrag);
-
-        OnPropertyChanged(nameof(Tage));
-        OnPropertyChanged(nameof(AlleEintraege));
     }
 
     [RelayCommand]
