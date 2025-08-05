@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Data;
 
 namespace Tiny_GymBook.Presentation;
 
+
 [Bindable]
 public partial class PlanDetailViewModel : ObservableObject
 {
@@ -20,10 +21,12 @@ public partial class PlanDetailViewModel : ObservableObject
     private Trainingsplan? trainingsplan;
 
     public ObservableCollection<Uebung>? Uebungen => Trainingsplan?.Uebungen;
+    public ObservableCollection<Tag> Tage { get; } = new();
     public ObservableCollection<Trainingseintrag> AlleEintraege { get; } = new();
 
-    public IEnumerable<IGrouping<string, Trainingseintrag>> GruppierteEintraege
-        => AlleEintraege.GroupBy(e => e.Tag);
+    // Gib Einträge für einen bestimmten Tag
+    public IEnumerable<Trainingseintrag> GetEintraegeFuerTag(Tag tag)
+        => AlleEintraege.Where(e => e.TagId == tag.TagId);
 
     public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
     {
@@ -32,8 +35,13 @@ public partial class PlanDetailViewModel : ObservableObject
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
         _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
         Trainingsplan = plan;
-    }
 
+        // Immer mindestens "Tag 1" anlegen
+        if (!Tage.Any())
+            Tage.Add(new Tag { Name = "Tag 1", Reihenfolge = 1 });
+
+        _ = LadeTageUndEintraegeAsync();
+    }
 
     partial void OnTrainingsplanChanged(Trainingsplan? value)
     {
@@ -43,42 +51,69 @@ public partial class PlanDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AddUebungDBAsync()
+    public async Task AddUebungToTagAsync(Tag tag)
     {
-        if (Trainingsplan == null)
-            return;
+        // Hier solltest du ggf. eine echte Übung referenzieren/auswählen!
+        var uebung = new Uebung { Name = "Neue Übung" };
 
-        var neueUebung = new Uebung
+        var eintrag = new Trainingseintrag
         {
-            Name = "Neue Übung",
-            Trainingsplan_Id = Trainingsplan.Trainingsplan_Id
+            TagId = tag.TagId,
+            Uebung_Id = uebung.Uebung_Id,
+            Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0,
+            // Weitere Felder falls nötig
         };
 
-        Debug.WriteLine($"[ADD] Vor Save: PlanId={Trainingsplan.Trainingsplan_Id}, Uebung.PlanId={neueUebung.Trainingsplan_Id}");
-        await _trainingsplanService.SpeichereUebung(neueUebung);
+        await _trainingsplanService.SpeichereTrainingseintragAsync(eintrag);
+        AlleEintraege.Add(eintrag);
 
-        // Reload der gesamten Übungen (sauberer als nur .Add)
-        var uebungenReloaded = await _trainingsplanService.LadeUebungenZuPlanAsync(Trainingsplan.Trainingsplan_Id);
-        Trainingsplan.Uebungen = new ObservableCollection<Uebung>(uebungenReloaded);
-        OnPropertyChanged(nameof(Uebungen));
-
-        Debug.WriteLine($"[CHECK] Übungen für Plan {Trainingsplan.Trainingsplan_Id}: {string.Join(", ", uebungenReloaded.Select(u => $"{u.Name} (Id={u.Uebung_Id})"))}");
-    }
-
-
-    [RelayCommand]
-    public void AddUebungToTag(string tag)
-    {
-        AlleEintraege.Add(new Trainingseintrag { Tag = tag, Uebung = new Uebung { Name = "Neue Übung" } });
-        OnPropertyChanged(nameof(GruppierteEintraege));
+        // NEU: Auch im Tag hinzufügen!
+        tag.Eintraege.Add(eintrag);
+        // Falls du auf ObservableCollection setzt, reicht das schon!
+        OnPropertyChanged(nameof(AlleEintraege));
+        OnPropertyChanged(nameof(Tage));
     }
 
     [RelayCommand]
-    public void AddTag()
+    public async Task AddTagAsync()
     {
-        var tagNum = GruppierteEintraege.Count() + 1;
-        AlleEintraege.Add(new Trainingseintrag { Tag = $"Tag {tagNum}", Uebung = new Uebung { Name = "Neue Übung" } });
-        OnPropertyChanged(nameof(GruppierteEintraege));
+        var nextNr = Tage.Count + 1;
+        var newTag = new Tag
+        {
+            Name = $"Tag {nextNr}",
+            Reihenfolge = nextNr,
+            Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0
+        };
+        await _trainingsplanService.SpeichereTagAsync(newTag);
+        Tage.Add(newTag);
+        OnPropertyChanged(nameof(Tage));
+    }
+
+
+    public async Task LadeTageUndEintraegeAsync()
+    {
+        if (Trainingsplan is null) return;
+
+        var tageAusDb = await _trainingsplanService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
+        var eintraegeAusDb = await _trainingsplanService.LadeTrainingseintraegeAsync(Trainingsplan.Trainingsplan_Id);
+
+        Tage.Clear();
+        AlleEintraege.Clear();
+
+        foreach (var tag in tageAusDb)
+        {
+            tag.Eintraege.Clear();
+            var zugeordneteEintraege = eintraegeAusDb.Where(e => e.TagId == tag.TagId).ToList();
+            foreach (var eintrag in zugeordneteEintraege)
+                tag.Eintraege.Add(eintrag);
+
+            Tage.Add(tag);
+        }
+        foreach (var eintrag in eintraegeAusDb)
+            AlleEintraege.Add(eintrag);
+
+        OnPropertyChanged(nameof(Tage));
+        OnPropertyChanged(nameof(AlleEintraege));
     }
 
     [RelayCommand]

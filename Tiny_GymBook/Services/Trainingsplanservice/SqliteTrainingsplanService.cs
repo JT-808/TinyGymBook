@@ -36,6 +36,7 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         await _db.CreateTableAsync<Uebung>();
         await _db.CreateTableAsync<Trainingseintrag>();
         await _db.CreateTableAsync<Satz>();
+        await _db.CreateTableAsync<Tag>();
     }
 
     public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync()
@@ -118,6 +119,37 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
+    public async Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag)
+    {
+        if (eintrag.Eintrag_Id == 0)
+        {
+            await _db.InsertAsync(eintrag);
+            Debug.WriteLine($"[DEBUG] Trainingseintrag gespeichert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
+        }
+        else
+        {
+            await _db.UpdateAsync(eintrag);
+            Debug.WriteLine($"[DEBUG] Trainingseintrag aktualisiert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
+        }
+    }
+
+    public async Task SpeichereTagAsync(Tag tag)
+    {
+        if (tag.TagId == 0)
+        {
+            await _db.InsertAsync(tag);
+            Debug.WriteLine($"[DEBUG] Tag gespeichert: Id={tag.TagId}, Name={tag.Name}");
+        }
+        else
+        {
+            await _db.UpdateAsync(tag);
+            Debug.WriteLine($"[DEBUG] Tag aktualisiert: Id={tag.TagId}, Name={tag.Name}");
+        }
+    }
+
+
+
+
     public async Task<bool> UebungWirklichGespeichertUndZugeordnet(Uebung uebung)
     {
         var gespeicherte = await _db.Table<Uebung>().Where(u => u.Uebung_Id == uebung.Uebung_Id).FirstOrDefaultAsync();
@@ -125,5 +157,24 @@ public class SqliteTrainingsplanService : ITrainingsplanService
             return false;
         return gespeicherte.Trainingsplan_Id == uebung.Trainingsplan_Id;
     }
+
+
+    public async Task<List<Tag>> LadeTageAsync(int trainingsplanId)
+    {
+        // Hole nur Tage für den angegebenen Trainingsplan
+        return await _db.Table<Tag>()
+            .Where(t => t.Trainingsplan_Id == trainingsplanId)
+            .OrderBy(t => t.Reihenfolge)
+            .ToListAsync();
+    }
+
+    public async Task<List<Trainingseintrag>> LadeTrainingseintraegeAsync(int trainingsplanId)
+    {
+        // Hole nur Einträge für den angegebenen Trainingsplan
+        return await _db.Table<Trainingseintrag>()
+            .Where(e => e.Trainingsplan_Id == trainingsplanId)
+            .ToListAsync();
+    }
+
 
 }

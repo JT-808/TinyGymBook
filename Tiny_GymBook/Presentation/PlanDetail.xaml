@@ -4,64 +4,75 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Tiny_GymBook.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid x:Name="RootGrid"
-          RowDefinitions="Auto,*,Auto">
+          Padding="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- Alle Übungen im aktuellen Plan -->
-        <StackPanel Grid.Row="0"
-                    Margin="0,0,0,8">
-            <TextBlock Text="Alle Übungen im Plan:"
-                       FontWeight="SemiBold"
-                       FontSize="18"
-                       Margin="0,0,0,4"/>
-            <ListView ItemsSource="{Binding Uebungen, Mode=OneWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Uebung">
-                        <TextBlock Text="{Binding Name}"
-                                   FontSize="16"/>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <Button Content="Übung (DB) hinzufügen"
-                    Command="{Binding AddUebungDBCommand}"/>
-        </StackPanel>
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                   Text="Trainingsplan"
+                   FontWeight="Bold"
+                   FontSize="22"
+                   Margin="0,0,0,16"/>
 
-        <!-- Gruppierte Einträge (wie gehabt) -->
+        <!-- Alle Tage mit Übungen -->
         <ScrollViewer Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding GruppierteEintraege}">
+            <ItemsControl ItemsSource="{Binding Tage}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="0,16,0,0">
-                            <TextBlock Text="{Binding Key}"
-                                       FontSize="20"
-                                       FontWeight="Bold"/>
-                            <ItemsControl ItemsSource="{Binding}">
+                        <StackPanel Margin="0,0,0,24">
+                            <!-- Tag-Header + +Button -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Name}"
+                                           FontSize="20"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,8"/>
+                                <Button Grid.Column="1"
+                                        Content="+"
+                                        FontSize="22"
+                                        VerticalAlignment="Top"
+                                        Margin="8,0,0,0"
+                                        Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
+                                        CommandParameter="{Binding}"/>
+                            </Grid>
+                            <!-- Übungen für diesen Tag -->
+                            <ItemsControl ItemsSource="{Binding Eintraege}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Uebung.Name}"
-                                                   FontSize="16"
-                                                   Margin="12,0,0,0"/>
+                                        <StackPanel Margin="0,0,0,10"
+                                                    BorderBrush="LightGray"
+                                                    BorderThickness="0,0,0,1">
+                                            <TextBlock Text="{Binding Uebung.Name}"
+                                                       FontSize="16"
+                                                       FontWeight="SemiBold"/>
+                                            <!-- Optional: Mehr Details, z.B. Sätze, Kommentar, etc. -->
+                                        </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Button Content="Übung (nur UI) zu Tag"
-                                    Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
-                                    CommandParameter="{Binding Key}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Footer-Buttons -->
+        <!-- Footer -->
         <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Margin="0,8,0,8">
+                    Margin="0,8,0,0"
+                    Spacing="12">
             <Button Content="Tag hinzufügen"
                     Command="{Binding AddTagCommand}"/>
             <Button Content="Speichern und zurück"

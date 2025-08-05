@@ -19,7 +19,11 @@ public class Trainingseintrag
 
     public string Kommentar { get; set; } = string.Empty;
 
-    public string Tag { get; set; } = "";
+    [Indexed]
+    public int TagId { get; set; }
+
+    [Ignore] // falls du den Tag per Join laden willst
+    public Tag? Tag { get; set; }
 
     public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
 
