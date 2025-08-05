@@ -11,7 +11,7 @@ Eine schlanke, plattformübergreifende Gym-Tracking-App, die sich auf das Wesent
 ---
 
 <div style="display: flex; gap: 10px;">
-  <img src="Tiny_GymBook/Assets/Screenshots/Screenshots 0.3.jpg" width="500" />
+  <img src="Tiny_GymBook/Assets/Screenshots/Screenshots 0.3.jpg" width="800" />
 </div>
 
 ## Über das Projekt
