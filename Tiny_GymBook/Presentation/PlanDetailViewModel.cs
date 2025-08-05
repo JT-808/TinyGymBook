@@ -75,11 +75,6 @@ public partial class PlanDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(AlleEintraege));
     }
 
-    // Gib Einträge für einen bestimmten Tag
-    // Für später! (Wird aktuell nicht genutzt)
-    public IEnumerable<Trainingseintrag> GetEintraegeFuerTag(Tag tag)
-        => AlleEintraege.Where(e => e.TagId == tag.TagId);
-
     //
     // ********************** Buttons *********************************
     //
