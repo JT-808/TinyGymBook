@@ -16,11 +16,12 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Grid.Row="0"
-                   Text="Trainingsplan"
-                   FontWeight="Bold"
-                   FontSize="22"
-                   Margin="0,0,0,16"/>
+        <TextBox Grid.Row="0"
+                 Text="{Binding Trainingsplan.Name, Mode=TwoWay}"
+                 FontSize="24"
+                 Header="Trainingsplan-Name"
+                 FontWeight="Bold"
+                 Margin="0,0,0,16"/>
 
         <!-- Alle Tage mit Übungen -->
         <ScrollViewer Grid.Row="1">

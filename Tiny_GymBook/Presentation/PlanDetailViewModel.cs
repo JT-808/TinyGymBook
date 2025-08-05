@@ -75,9 +75,9 @@ public partial class PlanDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(AlleEintraege));
     }
 
-    //
-    // ********************** Buttons *********************************
-    //
+    //                                                                   //
+    // ********************** Buttons ********************************* //
+    //                                                                 //
 
     [RelayCommand]
     public async Task AddUebungToTagAsync(Tag tag)
