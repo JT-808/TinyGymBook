@@ -25,6 +25,7 @@ public partial class PlanDetailViewModel : ObservableObject
     public ObservableCollection<Trainingseintrag> AlleEintraege { get; } = new();
 
 
+
     public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
     {
         Debug.WriteLine("[DEBUG] PlanDetailViewModel Konstruktor aufgerufen!");
@@ -38,7 +39,7 @@ public partial class PlanDetailViewModel : ObservableObject
             Tage.Add(new Tag { Name = "Tag 1", Reihenfolge = 1 });
 
 
-        _ = LadeTageUndEintraegeAsync();
+        _ = LadeTageUndUebungenAsync();
     }
 
     partial void OnTrainingsplanChanged(Trainingsplan? value)
@@ -49,30 +50,27 @@ public partial class PlanDetailViewModel : ObservableObject
     }
 
 
-    public async Task LadeTageUndEintraegeAsync()
+    public async Task LadeTageUndUebungenAsync()
     {
         if (Trainingsplan is null) return;
 
         var tageAusDb = await _trainingsplanService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
-        var eintraegeAusDb = await _trainingsplanService.LadeTrainingseintraegeAsync(Trainingsplan.Trainingsplan_Id);
+        var uebungenAusDb = await _trainingsplanService.LadeUebungenZuPlanAsync(Trainingsplan.Trainingsplan_Id);
 
         Tage.Clear();
-        AlleEintraege.Clear();
 
         foreach (var tag in tageAusDb)
         {
-            tag.Eintraege.Clear();
-            var zugeordneteEintraege = eintraegeAusDb.Where(e => e.TagId == tag.TagId).ToList();
-            foreach (var eintrag in zugeordneteEintraege)
-                tag.Eintraege.Add(eintrag);
+            tag.Uebungen.Clear();
+            var uebungenFuerTag = uebungenAusDb.Where(u => u.TagId == tag.TagId); //
+            foreach (var u in uebungenFuerTag)
+                tag.Uebungen.Add(u);
 
             Tage.Add(tag);
         }
-        foreach (var eintrag in eintraegeAusDb)
-            AlleEintraege.Add(eintrag);
 
         OnPropertyChanged(nameof(Tage));
-        OnPropertyChanged(nameof(AlleEintraege));
+
     }
 
     //                                                                   //
@@ -82,24 +80,15 @@ public partial class PlanDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task AddUebungToTagAsync(Tag tag)
     {
-        // Hier solltest du ggf. eine echte Übung referenzieren/auswählen!
-        var uebung = new Uebung { Name = "Neue Übung" };
-
-        var eintrag = new Trainingseintrag
+        var uebung = new Uebung
         {
-            TagId = tag.TagId,
-            Uebung_Id = uebung.Uebung_Id,
+            Name = "Neue Übung",
             Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0,
-            // Weitere Felder falls nötig
+            TagId = tag.TagId
         };
 
-        await _trainingsplanService.SpeichereTrainingseintragAsync(eintrag);
-        AlleEintraege.Add(eintrag);
-
-        // NEU: Auch im Tag hinzufügen!
-        tag.Eintraege.Add(eintrag);
-        // Falls du auf ObservableCollection setzt, reicht das schon!
-        OnPropertyChanged(nameof(AlleEintraege));
+        await _trainingsplanService.SpeichereUebung(uebung);
+        tag.Uebungen.Add(uebung);
         OnPropertyChanged(nameof(Tage));
     }
 

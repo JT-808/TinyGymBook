@@ -13,6 +13,7 @@ public class Tag
     public int Reihenfolge { get; set; }
     public int Trainingsplan_Id { get; set; }
 
-    public ObservableCollection<Trainingseintrag> Eintraege { get; } = new();
+    [Ignore]
+    public ObservableCollection<Uebung> Uebungen { get; } = new();
 }
 

@@ -48,13 +48,13 @@
                                         CommandParameter="{Binding}"/>
                             </Grid>
                             <!-- Übungen für diesen Tag -->
-                            <ItemsControl ItemsSource="{Binding Eintraege}">
+                            <ItemsControl ItemsSource="{Binding Uebungen}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="0,0,0,10"
                                                     BorderBrush="LightGray"
                                                     BorderThickness="0,0,0,1">
-                                            <TextBlock Text="{Binding Uebung.Name}"
+                                            <TextBlock Text="{Binding Name}"
                                                        FontSize="16"
                                                        FontWeight="SemiBold"/>
                                             <!-- Optional: Mehr Details, z.B. Sätze, Kommentar, etc. -->

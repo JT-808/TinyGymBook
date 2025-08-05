@@ -168,6 +168,8 @@ public class SqliteTrainingsplanService : ITrainingsplanService
             .ToListAsync();
     }
 
+
+
     public async Task<List<Trainingseintrag>> LadeTrainingseintraegeAsync(int trainingsplanId)
     {
         // Hole nur Einträge für den angegebenen Trainingsplan

@@ -16,6 +16,7 @@ public class Uebung
 
     //Zusatzälich um direkt Uebungen von Trainingsplan direkt zu bekommen
     public int Trainingsplan_Id { get; set; }
+    public int TagId { get; set; }
 
     public Uebung() { }
 
