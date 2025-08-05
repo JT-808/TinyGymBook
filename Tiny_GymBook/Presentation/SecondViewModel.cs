@@ -74,7 +74,7 @@ public partial class SecondViewModel : ObservableObject
         if (plan is null) return;
 
         await _trainingsplanService.LoescheTrainingsplanAsync(plan);
-        await LadeTrainingsplaeneAsync(); // <-- jetzt garantiert aktuell
+        await LadeTrainingsplaeneAsync();
     }
 
     [RelayCommand]
