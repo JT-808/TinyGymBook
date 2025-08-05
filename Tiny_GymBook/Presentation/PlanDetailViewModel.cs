@@ -20,10 +20,7 @@ public partial class PlanDetailViewModel : ObservableObject
     [ObservableProperty]
     private Trainingsplan? trainingsplan;
 
-    public ObservableCollection<Uebung>? Uebungen => Trainingsplan?.Uebungen;
     public ObservableCollection<Tag> Tage { get; } = new();
-    public ObservableCollection<Trainingseintrag> AlleEintraege { get; } = new();
-
 
 
     public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
@@ -34,21 +31,8 @@ public partial class PlanDetailViewModel : ObservableObject
         _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
         Trainingsplan = plan;
 
-        // Immer mindestens "Tag 1" anlegen
-        if (!Tage.Any())
-            Tage.Add(new Tag { Name = "Tag 1", Reihenfolge = 1 });
-
-
         _ = LadeTageUndUebungenAsync();
     }
-
-    partial void OnTrainingsplanChanged(Trainingsplan? value)
-    {
-        Debug.WriteLine("[DEBUG] OnTrainingsplanChanged wurde aufgerufen!");
-        Debug.WriteLine($"[DEBUG] Trainingsplan gesetzt: {value?.Name} / ID: {value?.Trainingsplan_Id}");
-        OnPropertyChanged(nameof(Uebungen));
-    }
-
 
     public async Task LadeTageUndUebungenAsync()
     {
@@ -68,14 +52,9 @@ public partial class PlanDetailViewModel : ObservableObject
 
             Tage.Add(tag);
         }
-
-        OnPropertyChanged(nameof(Tage));
-
     }
 
-    //                                                                   //
-    // ********************** Buttons ********************************* //
-    //                                                                 //
+    // ****** Buttons ********//
 
     [RelayCommand]
     public async Task AddUebungToTagAsync(Tag tag)
@@ -89,7 +68,6 @@ public partial class PlanDetailViewModel : ObservableObject
 
         await _trainingsplanService.SpeichereUebung(uebung);
         tag.Uebungen.Add(uebung);
-        OnPropertyChanged(nameof(Tage));
     }
 
     [RelayCommand]
@@ -104,7 +82,6 @@ public partial class PlanDetailViewModel : ObservableObject
         };
         await _trainingsplanService.SpeichereTagAsync(newTag);
         Tage.Add(newTag);
-        OnPropertyChanged(nameof(Tage));
     }
 
     [RelayCommand]
@@ -117,7 +94,7 @@ public partial class PlanDetailViewModel : ObservableObject
         }
         try
         {
-            await _trainingsplanService.SpeichereTrainingsplanAsync(Trainingsplan);
+            await _trainingsplanService.SpeichereTrainingsplanAsync(Trainingsplan, Tage);
             await _navigator.NavigateBackAsync(this);
         }
         catch (Exception ex)

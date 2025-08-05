@@ -44,12 +44,14 @@ public partial class SecondViewModel : ObservableObject
         }
     }
 
+    // ****** Buttons ********//
+
     [RelayCommand]
     private async Task AddPlanAsync()
     {
         // Plan erzeugen und speichern
         var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-        await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan);
+        await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan, new List<Tag>());
 
         // Pläne neu laden
         await LadeTrainingsplaeneAsync();
@@ -83,20 +85,8 @@ public partial class SecondViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task SaveAndGoBackAsync(Trainingsplan plan)
+    private async Task GoBackAsync()
     {
-        if (plan == null)
-            return;
-
-        try
-        {
-            await _trainingsplanService.SpeichereTrainingsplanAsync(plan);
-            await _navigator.NavigateBackAsync(this);
-
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[FEHLER] Navigation: {ex.Message}");
-        }
+        await _navigator.NavigateBackAsync(this);
     }
 }

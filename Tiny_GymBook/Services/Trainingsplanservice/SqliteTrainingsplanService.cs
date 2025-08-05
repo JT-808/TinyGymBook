@@ -57,7 +57,7 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         return plaene;
     }
 
-    public async Task SpeichereTrainingsplanAsync(Trainingsplan plan)
+    public async Task SpeichereTrainingsplanAsync(Trainingsplan plan, IEnumerable<Tag> tage)
     {
         if (plan.Trainingsplan_Id == 0)
         {
@@ -70,24 +70,43 @@ public class SqliteTrainingsplanService : ITrainingsplanService
             Debug.WriteLine($"[DEBUG] UpdateAsync RESULT: {result}");
         }
 
-        if (plan.Uebungen != null)
+
+
+        // Nach dem Insert: Wenn Plan ganz neu, Tag 1 anlegen
+        if (plan.Trainingsplan_Id != 0 && !tage.Any())
         {
-            foreach (var uebung in plan.Uebungen)
+            var ersterTag = new Tag
+            {
+                Name = "Tag 1",
+                Reihenfolge = 1,
+                Trainingsplan_Id = plan.Trainingsplan_Id
+            };
+            await SpeichereTagAsync(ersterTag);
+        }
+
+
+        // Speichere alle Tage (falls nötig)
+        foreach (var tag in tage)
+        {
+            tag.Trainingsplan_Id = plan.Trainingsplan_Id;
+            if (tag.TagId == 0)
+                await _db.InsertAsync(tag);
+            else
+                await _db.UpdateAsync(tag);
+
+            // Speichere die Übungen dieses Tags!
+            foreach (var uebung in tag.Uebungen)
             {
                 uebung.Trainingsplan_Id = plan.Trainingsplan_Id;
+                uebung.TagId = tag.TagId;
                 if (uebung.Uebung_Id == 0)
-                {
                     await _db.InsertAsync(uebung);
-                    Debug.WriteLine($"[DEBUG] Übung '{uebung.Name}' gespeichert mit Id={uebung.Uebung_Id} für Plan {plan.Name} ({plan.Trainingsplan_Id})");
-                }
                 else
-                {
                     await _db.UpdateAsync(uebung);
-                    Debug.WriteLine($"[DEBUG] Übung '{uebung.Name}' aktualisiert, Id={uebung.Uebung_Id}, PlanId={uebung.Trainingsplan_Id}");
-                }
             }
         }
     }
+
 
 
 
@@ -148,15 +167,6 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
-
-
-    public async Task<bool> UebungWirklichGespeichertUndZugeordnet(Uebung uebung)
-    {
-        var gespeicherte = await _db.Table<Uebung>().Where(u => u.Uebung_Id == uebung.Uebung_Id).FirstOrDefaultAsync();
-        if (gespeicherte == null)
-            return false;
-        return gespeicherte.Trainingsplan_Id == uebung.Trainingsplan_Id;
-    }
 
 
     public async Task<List<Tag>> LadeTageAsync(int trainingsplanId)

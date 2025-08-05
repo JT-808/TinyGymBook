@@ -7,14 +7,12 @@ namespace Tiny_GymBook.Services.Trainingsplanservice;
 public interface ITrainingsplanService
 {
     Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync();
-    Task SpeichereTrainingsplanAsync(Trainingsplan plan);
+    Task SpeichereTrainingsplanAsync(Trainingsplan plan, IEnumerable<Tag> tage);
     Task LoescheTrainingsplanAsync(Trainingsplan plan);
     Task<List<Uebung>> LadeUebungenZuPlanAsync(int trainingsplanId);
 
     Task SpeichereUebung(Uebung uebung);
     Task SpeichereTagAsync(Tag tag);
-
-    Task<bool> UebungWirklichGespeichertUndZugeordnet(Uebung uebung);
 
 
     Task InitAsync();

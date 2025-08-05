@@ -93,7 +93,7 @@
                 Style="{StaticResource BottomTabBarStyle}">
       <utu:TabBar.Items>
         <utu:TabBarItem Content="HOME"
-                        Command="{Binding SaveAndGoBackCommand}">
+                        Command="{Binding GoBackCommand}">
           <utu:TabBarItem.Icon>
             <FontIcon Glyph="{StaticResource HomeIcon}"/>
           </utu:TabBarItem.Icon>

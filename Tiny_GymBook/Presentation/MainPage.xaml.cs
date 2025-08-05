@@ -10,12 +10,6 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         this.InitializeComponent();
-        this.Loaded += async (s, e) =>
-       {
-           await Task.Delay(500);
-           Debug.WriteLine($"[DEBUG] Loaded DataContext (MainPage, 500ms später): {this.DataContext?.GetType().Name}");
-       };
-
     }
 
 
