@@ -4,19 +4,22 @@
 
 ⚠️ Dieses Projekt befindet sich noch in Entwicklung.
 
-
 # Minimal Gym Tracker
 
 Eine schlanke, plattformübergreifende Gym-Tracking-App, die sich auf das Wesentliche konzentriert.
 
 ---
 
+<div style="display: flex; gap: 10px;">
+  <img src="Tiny_GymBook/Assets/Screenshots/Screenshots 0.3.jpg" width="226" />
+</div>
+
 ## Über das Projekt
 
 Die App richtet sich an Anfänger und Fortgeschrittene, die ihre Trainingswerte einfach und ohne Ablenkung dokumentieren möchten.
 
-- Kein Login, kein Account  
-- Keine Tracker, keine Werbung  
+- Kein Login, kein Account
+- Keine Tracker, keine Werbung
 - Wie ein Trainingsbuch, um Werte schnell zu dokumentieren
 
 Ziel ist es, eine einfache und schnelle Möglichkeit zu bieten, Fortschritte festzuhalten – ohne Schnickschnack.
@@ -25,10 +28,10 @@ Ziel ist es, eine einfache und schnelle Möglichkeit zu bieten, Fortschritte fes
 
 ## Features
 
-- Einfaches Hinzufügen von Trainingseinheiten und Übungen  
-- Übersichtliche Anzeige der letzten Trainingswerte  
-- Plattformübergreifend mit C# und Uno Platform  
-- Fokus auf schnelle und intuitive Bedienung  
+- Einfaches Hinzufügen von Trainingseinheiten und Übungen
+- Übersichtliche Anzeige der letzten Trainingswerte
+- Plattformübergreifend mit C# und Uno Platform
+- Fokus auf schnelle und intuitive Bedienung
 
 ---
 
@@ -54,3 +57,4 @@ Beiträge und Feedback sind herzlich willkommen!
 ## Lizenz
 
 MIT License
+
