@@ -20,7 +20,7 @@ public interface ITrainingsplanService
 
     Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag);
 
-    Task<List<Trainingseintrag>> LadeTrainingseintraegeAsync(int trainingsplanId);
+    Task<List<Trainingseintrag>> LadeAlleTrainingseintraegeAsync();
     Task<List<Tag>> LadeTageAsync(int trainingsplanId);
 
     // Optional: Nur im Json-Service sinnvoll implementiert

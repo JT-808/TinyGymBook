@@ -12,22 +12,37 @@
   <Grid Padding="12">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <!-- Header -->
-      <RowDefinition Height="*"/>
-      <!-- Inhalt -->
       <RowDefinition Height="Auto"/>
-      <!-- TabBar -->
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+
 
     <!-- WochenHeader -->
     <TextBlock x:Name="WochenHeader"
+               Grid.Row="0"
                Text="{Binding AktuelleWoche.WochenHeaderText}"
                FontSize="18"
                FontWeight="Bold"
                Margin="0,0,0,12"/>
 
+    <!-- Plan-Auswahl -->
+    <!-- Row 1: Plan-Auswahl + Count -->
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                VerticalAlignment="Center"
+                Spacing="8">
+      <ComboBox ItemsSource="{Binding AllePlaene}"
+                SelectedItem="{Binding AktiverPlan, Mode=TwoWay}"
+                DisplayMemberPath="Name"
+                PlaceholderText="Wähle einen Plan"/>
+      <TextBlock Text="{Binding AllePlaene.Count}"
+                 Margin="12,0,0,0"/>
+    </StackPanel>
+
     <!-- Scrollbarer Bereich -->
-    <ScrollViewer Grid.Row="1"
+    <ScrollViewer Grid.Row="2"
                   VerticalScrollBarVisibility="Auto">
 
       <!-- Trainings-Einträge -->
@@ -56,7 +71,7 @@
 
                 <Button Content="+"
                         Grid.Column="1"
-                        Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
+                        Command="{Binding DataContext.AddTrainingseintragCommand, ElementName=RootPage}"
                         CommandParameter="{Binding}"/>
               </Grid>
 
@@ -75,15 +90,15 @@
 
                       <TextBlock Text="{x:Bind Nummer}"
                                  Margin="0,0,10,0"/>
-                      <TextBox Text="{x:Bind Gewicht, Mode=TwoWay}"
+                      <TextBox Text="{x:Bind Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                Grid.Column="1"
                                PlaceholderText="KG"
                                Margin="5,0"/>
-                      <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay}"
+                      <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                Grid.Column="2"
                                PlaceholderText="Wdh"
                                Margin="5,0"/>
-                      <TextBox Text="{x:Bind Kommentar, Mode=TwoWay}"
+                      <TextBox Text="{x:Bind Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                Grid.Column="3"
                                PlaceholderText="Kommentar"
                                Margin="5,0"
@@ -105,7 +120,7 @@
     </ScrollViewer>
 
     <!-- TabBar ganz unten -->
-    <utu:TabBar Grid.Row="2"
+    <utu:TabBar Grid.Row="4"
                 Style="{StaticResource BotoomTabBarStyle}">
       <utu:TabBar.Items>
         <utu:TabBarItem Content="HOME">

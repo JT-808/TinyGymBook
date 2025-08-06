@@ -40,7 +40,7 @@ public class Trainingseintrag
     [Ignore]
     public double StandardGewicht { get; set; }
 
-    public Trainingseintrag() { }
+    //public Trainingseintrag() { }
 
     public Trainingseintrag(Uebung uebung)
     {
@@ -81,6 +81,16 @@ public class Trainingseintrag
 
         StandardWiederholungen = wiederholungen;
         StandardGewicht = gewicht;
+    }
+
+
+    public Trainingseintrag()
+    {
+        Saetze = new ObservableCollection<Satz>();
+        Kommentar = string.Empty;
+        Training_Date = DateTime.Today.ToString("yyyy-MM-dd");
+        // Initialisiere Uebung mit leeren/default-Werten, damit das Binding funktioniert!
+        Uebung = new Uebung { Name = "", Muskelgruppe = Muskelgruppe.Brust }; // Setze einen Default
     }
 
 

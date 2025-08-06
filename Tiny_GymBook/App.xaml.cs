@@ -1,5 +1,6 @@
 using Uno.Resizetizer;
 using Tiny_GymBook.Services.Trainingsplanservice;
+using System.Diagnostics;
 
 namespace Tiny_GymBook;
 
@@ -11,7 +12,33 @@ public partial class App : Application
         // Diesen Aufruf brauchst du
         this.InitializeComponent();
 
+        // wenn App minimiert wird
+        this.Suspending += OnSuspending;
+
     }
+
+    private async void OnSuspending(object sender, SuspendingEventArgs e)
+    {
+        // TODO: ViewModel/Service aufrufen und speichern!
+        var deferral = e.SuspendingOperation.GetDeferral();
+        try
+        {
+            // Beispiel: alle Änderungen speichern
+            await SaveAllDataAsync();
+        }
+        finally
+        {
+            deferral.Complete();
+        }
+    }
+
+    private async Task SaveAllDataAsync()
+    {
+        // Zugriff auf dein ViewModel/Service
+        // z.B. (singleton, DI, ServiceLocator ...)
+        // await DeinTrainingsplanService.SpeichereAlleOffenenEintraegeAsync();
+    }
+
 
     protected Window? MainWindow { get; private set; }
     protected IHost? Host { get; private set; }
@@ -65,6 +92,7 @@ public partial class App : Application
 
         MainWindow = builder.Window;
 
+
 #if DEBUG
         MainWindow.UseStudio();
 #endif
@@ -73,6 +101,11 @@ public partial class App : Application
 
 
         Host = await builder.NavigateAsync<Shell>();
+
+        if (MainWindow.Content is FrameworkElement fe)
+            Debug.WriteLine($"[DEBUG] MainWindow.Content DataContext: {fe.DataContext}");
+        else
+            Debug.WriteLine($"[DEBUG] MainWindow.Content ist kein FrameworkElement!");
 
 
         var trainingsplanService = Host.Services.GetRequiredService<ITrainingsplanService>();

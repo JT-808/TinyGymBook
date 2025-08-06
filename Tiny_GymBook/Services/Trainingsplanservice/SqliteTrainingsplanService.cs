@@ -85,14 +85,19 @@ public class SqliteTrainingsplanService : ITrainingsplanService
         }
 
 
-        // Speichere alle Tage (falls nötig)
         foreach (var tag in tage)
         {
             tag.Trainingsplan_Id = plan.Trainingsplan_Id;
             if (tag.TagId == 0)
+            {
                 await _db.InsertAsync(tag);
+                Debug.WriteLine($"[DEBUG] Tag nach Insert: {tag.Name}, Id={tag.TagId}");
+            }
             else
+            {
                 await _db.UpdateAsync(tag);
+                Debug.WriteLine($"[DEBUG] Tag nach Update: {tag.Name}, Id={tag.TagId}");
+            }
 
             // Speichere die Übungen dieses Tags!
             foreach (var uebung in tag.Uebungen)
@@ -138,20 +143,6 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
-    public async Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag)
-    {
-        if (eintrag.Eintrag_Id == 0)
-        {
-            await _db.InsertAsync(eintrag);
-            Debug.WriteLine($"[DEBUG] Trainingseintrag gespeichert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
-        }
-        else
-        {
-            await _db.UpdateAsync(eintrag);
-            Debug.WriteLine($"[DEBUG] Trainingseintrag aktualisiert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
-        }
-    }
-
     public async Task SpeichereTagAsync(Tag tag)
     {
         if (tag.TagId == 0)
@@ -180,12 +171,41 @@ public class SqliteTrainingsplanService : ITrainingsplanService
 
 
 
-    public async Task<List<Trainingseintrag>> LadeTrainingseintraegeAsync(int trainingsplanId)
+
+    public async Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag)
+    {
+        if (eintrag.Eintrag_Id == 0)
+        {
+            await _db.InsertAsync(eintrag);
+            Debug.WriteLine($"[DEBUG] Trainingseintrag gespeichert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
+        }
+        else
+        {
+            await _db.UpdateAsync(eintrag);
+            Debug.WriteLine($"[DEBUG] Trainingseintrag aktualisiert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
+        }
+
+        // Jetzt die Sätze speichern
+        foreach (var satz in eintrag.Saetze)
+        {
+            satz.Trainingseintrag_Id = eintrag.Eintrag_Id; // FK setzen!
+            if (satz.Satz_Id == 0)
+            {
+                await _db.InsertAsync(satz);
+                Debug.WriteLine($"[DEBUG] Satz gespeichert: Id={satz.Satz_Id}");
+            }
+            else
+            {
+                await _db.UpdateAsync(satz);
+                Debug.WriteLine($"[DEBUG] Satz nach Update Id={satz.Satz_Id}");
+            }
+        }
+    }
+
+    public async Task<List<Trainingseintrag>> LadeAlleTrainingseintraegeAsync()
     {
         // Hole nur Einträge für den angegebenen Trainingsplan
-        return await _db.Table<Trainingseintrag>()
-            .Where(e => e.Trainingsplan_Id == trainingsplanId)
-            .ToListAsync();
+        return await _db.Table<Trainingseintrag>().ToListAsync();
     }
 
 

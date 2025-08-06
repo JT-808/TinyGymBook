@@ -10,15 +10,14 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         this.InitializeComponent();
+        Debug.WriteLine($"[DEBUG] MainPage DataContext (CTOR): {this.DataContext}");
+        this.Loaded += (s, e) => Debug.WriteLine($"[DEBUG] MainPage DataContext (Loaded): {this.DataContext}");
+        this.Loaded += MainPage_Loaded;
     }
-
-
-    private void AddSet_Click(object sender, RoutedEventArgs e)
+    private async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is Trainingseintrag eintrag
-            && DataContext is MainViewModel vm)
-        {
-            vm.AddSatz(eintrag);
-        }
+        if (DataContext is MainViewModel vm)
+            await vm.InitAsync(); // Daten werden immer neu geladen!
     }
+
 }
