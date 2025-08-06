@@ -209,4 +209,11 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
+    public async Task<IEnumerable<Satz>> LadeSaetzeFuerEintragAsync(int eintragId)
+    {
+        return await _db.Table<Satz>()
+                        .Where(s => s.Trainingseintrag_Id == eintragId)
+                        .ToListAsync();
+    }
+
 }

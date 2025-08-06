@@ -23,6 +23,8 @@ public interface ITrainingsplanService
     Task<List<Trainingseintrag>> LadeAlleTrainingseintraegeAsync();
     Task<List<Tag>> LadeTageAsync(int trainingsplanId);
 
+    Task<IEnumerable<Satz>> LadeSaetzeFuerEintragAsync(int eintragId);
+
     // Optional: Nur im Json-Service sinnvoll implementiert
     //Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene);
 }
