@@ -11,7 +11,7 @@ namespace Tiny_GymBook.Presentation;
 [Bindable]
 public partial class MainViewModel : ObservableObject
 {
-    private INavigator _navigator;
+    private readonly INavigator _navigator;
     private readonly ITrainingsplanService _trainingsplanService;
 
     [ObservableProperty]
@@ -19,8 +19,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private Trainingsplan? aktiverPlan;
+
     public ObservableCollection<Trainingsplan> AllePlaene { get; } = new();
-    public ObservableCollection<Trainingseintrag> Eintraege { get; } = new();
+    public ObservableCollection<Tag> AlleTage { get; } = new(); // HIER: Alle Tage + Übungen + Sätze!
 
     public MainViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
     {
@@ -48,52 +49,79 @@ public partial class MainViewModel : ObservableObject
         var montag = heute.AddDays(-(int)heute.DayOfWeek + (int)DayOfWeek.Monday);
         AktuelleWoche = new Trainingswoche(kw, heute.Year, montag);
     }
-    // Wenn andere Plan ausgewäht wird -> Einträge aktualisieren
+
+    // Immer wenn sich der aktive Plan ändert, lade die Tage/Übungen/Sätze neu!
     partial void OnAktiverPlanChanged(Trainingsplan? value)
     {
-        _ = LadeEintraegeAsync();
+        _ = LadeTageMitUebungenUndEintraegenAsync();
     }
 
-
-    private async Task LadeEintraegeAsync()
+    private async Task LadeTageMitUebungenUndEintraegenAsync()
     {
         if (AktiverPlan == null)
         {
-            Eintraege.Clear();
+            AlleTage.Clear();
             return;
         }
 
-        // Lade alle Einträge aus der DB (du kannst auch nach Plan filtern, falls du willst)
-        var eintraegeAusDB = await _trainingsplanService.LadeAlleTrainingseintraegeAsync();
+        // 1. Tage und Übungen zum Plan laden
+        var tage = await _trainingsplanService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
+        var uebungen = await _trainingsplanService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
 
-        Eintraege.Clear();
+        // 2. Trainingseinträge laden (z.B. für aktuelle Woche, oder alles)
+        var eintraege = await _trainingsplanService.LadeAlleTrainingseintraegeAsync();
 
-        foreach (var eintrag in eintraegeAusDB)
+        AlleTage.Clear();
+
+        foreach (var tag in tage)
         {
-            // Lade die zugehörigen Sätze für diesen Eintrag
-            var saetze = await _trainingsplanService.LadeSaetzeFuerEintragAsync(eintrag.Eintrag_Id);
-            eintrag.Saetze = new ObservableCollection<Satz>(saetze);
+            tag.Uebungen.Clear();
 
-            Eintraege.Add(eintrag);
+            // Alle Übungen für diesen Tag
+            var uebungenFuerTag = uebungen.Where(u => u.TagId == tag.TagId);
 
-            Debug.WriteLine($"[DEBUG] Eintrag {eintrag.Eintrag_Id} geladen mit {eintrag.Saetze.Count} Sätzen.");
+            foreach (var uebung in uebungenFuerTag)
+            {
+                // Finde passenden Eintrag
+                var eintrag = eintraege.FirstOrDefault(e =>
+                    e.Trainingsplan_Id == AktiverPlan.Trainingsplan_Id &&
+                    e.Uebung_Id == uebung.Uebung_Id
+                // Hier könnte man noch nach Datum/Woche filtern!
+                );
+
+                // Falls noch kein Eintrag für diese Übung existiert, erstelle einen leeren
+                if (eintrag == null)
+                {
+                    eintrag = new Trainingseintrag
+                    {
+                        Trainingsplan_Id = AktiverPlan.Trainingsplan_Id,
+                        Uebung_Id = uebung.Uebung_Id,
+                        Uebung = uebung,
+                        Saetze = new ObservableCollection<Satz>()
+                    };
+                }
+                else
+                {
+                    // Sätze laden
+                    var saetze = await _trainingsplanService.LadeSaetzeFuerEintragAsync(eintrag.Eintrag_Id);
+                    eintrag.Saetze = new ObservableCollection<Satz>(saetze);
+                }
+
+                uebung.Trainingseintrag = eintrag;
+                tag.Uebungen.Add(uebung);
+            }
+            AlleTage.Add(tag);
         }
-
-        // Optional: Wenn keine Einträge da sind, einen leeren Eintrag für aktuellen Plan hinzufügen:
-        if (Eintraege.Count == 0)
-            Eintraege.Add(new Trainingseintrag { Trainingsplan_Id = AktiverPlan.Trainingsplan_Id });
     }
 
-
     [RelayCommand]
-    public void AddSatz(Trainingseintrag eintrag)
+    public void AddSatz(Uebung uebung)
     {
-        if (eintrag == null)
+        if (uebung == null || uebung.Trainingseintrag == null)
             return;
 
-        int neueNummer = eintrag.Saetze.Count + 1;
-
-        eintrag.Saetze.Add(new Satz
+        int neueNummer = (uebung.Trainingseintrag.Saetze.Count) + 1;
+        uebung.Trainingseintrag.Saetze.Add(new Satz
         {
             Nummer = neueNummer,
             Gewicht = 0,
@@ -102,52 +130,19 @@ public partial class MainViewModel : ObservableObject
         });
     }
 
-
     [RelayCommand]
     private async Task NavigateToPlaeneAsync()
     {
-        foreach (var eintrag in Eintraege)
+        // Speichere alle Trainingseinträge mit ihren Sätzen
+        foreach (var tag in AlleTage)
         {
-            eintrag.Trainingsplan_Id = AktiverPlan?.Trainingsplan_Id ?? eintrag.Trainingsplan_Id;
-            await _trainingsplanService.SpeichereTrainingseintragAsync(eintrag);
+            foreach (var uebung in tag.Uebungen)
+            {
+                if (uebung.Trainingseintrag != null)
+                    await _trainingsplanService.SpeichereTrainingseintragAsync(uebung.Trainingseintrag);
+            }
         }
-        await LadeEintraegeAsync();
+        await LadeTageMitUebungenUndEintraegenAsync();
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
     }
-
-
-
-
-
-
-
-
-
-
-    // eventuell für später um einzelne Extra-Übungen hinzufügen zu können
-
-    // [RelayCommand]
-    // public void AddTrainingseintrag()
-    // {
-    //     if (AktiverPlan == null) return;
-
-    //     var neuerEintrag = new Trainingseintrag
-    //     {
-    //         Trainingsplan_Id = AktiverPlan.Trainingsplan_Id,
-    //         Eintrag_Id = 0,
-    //         Kommentar = $"Neuer Eintrag {DateTime.Now:T}",
-    //         Training_Date = DateTime.Now.ToString("yyyy-MM-dd"),
-    //         Uebung = new Uebung("Neue Übung", Muskelgruppe.Brust)
-    //     };
-
-    //     neuerEintrag.Saetze.Add(new Satz
-    //     {
-    //         Nummer = 1,
-    //         Gewicht = 0,
-    //         Wiederholungen = 0,
-    //         Kommentar = string.Empty
-    //     });
-
-    //     Eintraege.Add(neuerEintrag);
-    // }
 }

@@ -12,13 +12,9 @@
   <Grid Padding="12">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <!-- Header -->
       <RowDefinition Height="Auto"/>
-      <!-- Plan-Auswahl -->
       <RowDefinition Height="*"/>
-      <!-- Liste scrollt -->
       <RowDefinition Height="Auto"/>
-      <!-- TabBar unten -->
     </Grid.RowDefinitions>
 
     <!-- WochenHeader -->
@@ -41,69 +37,85 @@
                  Margin="12,0,0,0"/>
     </StackPanel>
 
-    <!-- Trainings-Einträge: NUR diese Zeile ist gescrollt -->
+    <!-- Tage-Übungen-Sätze Hierarchie -->
     <ScrollViewer Grid.Row="2"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-      <ItemsControl ItemsSource="{Binding Eintraege}">
+      <ItemsControl ItemsSource="{Binding AlleTage}">
         <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="models:Trainingseintrag">
+          <DataTemplate x:DataType="models:Tag">
             <StackPanel Margin="0,0,0,20"
                         BorderBrush="LightGray"
                         BorderThickness="0,0,0,1">
 
-              <!-- Übung -->
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                  <TextBlock Text="{x:Bind Uebung.Name, Mode=OneWay}"
-                             FontSize="18"
-                             FontWeight="Bold"/>
-                  <TextBlock Text="{x:Bind Uebung.Muskelgruppe, Mode=OneWay}"
-                             Foreground="Gray"/>
-                </StackPanel>
-                <Button Content="+"
-                        Grid.Column="1"
-                        Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
-                        CommandParameter="{Binding}"/>
-              </Grid>
+              <!-- Tag-Name -->
+              <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                         FontSize="18"
+                         FontWeight="SemiBold"
+                         Margin="0,0,0,8"/>
 
-              <!-- Sätze -->
-              <ItemsControl ItemsSource="{x:Bind Saetze, Mode=OneWay}"
-                            Margin="0,10">
+              <!-- Übungen für diesen Tag -->
+              <ItemsControl ItemsSource="{x:Bind Uebungen, Mode=OneWay}">
                 <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="models:Satz">
-                    <Grid Margin="0,5">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
-                      </Grid.ColumnDefinitions>
-                      <TextBlock Text="{x:Bind Nummer}"
-                                 Margin="0,0,10,0"/>
-                      <TextBox Text="{x:Bind Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               Grid.Column="1"
-                               PlaceholderText="KG"
-                               Margin="5,0"/>
-                      <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               Grid.Column="2"
-                               PlaceholderText="Wdh"
-                               Margin="5,0"/>
-                      <TextBox Text="{x:Bind Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               Grid.Column="3"
-                               PlaceholderText="Kommentar"
-                               Margin="5,0"
-                               FontSize="12"
-                               TextWrapping="Wrap"
-                               AcceptsReturn="True"
-                               VerticalAlignment="Top"
-                               MinHeight="40"
-                               MaxHeight="100"/>
-                    </Grid>
+                  <DataTemplate x:DataType="models:Uebung">
+                    <StackPanel Margin="0,0,0,12">
+
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*"/>
+                          <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                     FontSize="16"
+                                     FontWeight="Bold"/>
+                          <TextBlock Text="{x:Bind Muskelgruppe, Mode=OneWay}"
+                                     Foreground="Gray"/>
+                        </StackPanel>
+                        <Button Content="+"
+                                Grid.Column="1"
+                                Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
+                                CommandParameter="{Binding}"/>
+                      </Grid>
+
+                      <!-- Sätze zu dieser Übung -->
+                      <ItemsControl ItemsSource="{x:Bind Trainingseintrag.Saetze, Mode=OneWay}"
+                                    Margin="0,10">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="models:Satz">
+                            <Grid Margin="0,5">
+                              <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                              </Grid.ColumnDefinitions>
+                              <TextBlock Text="{x:Bind Nummer}"
+                                  Margin="0,0,10,0"/>
+                              <TextBox Text="{x:Bind Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Grid.Column="1"
+                                  PlaceholderText="KG"
+                                  Margin="5,0"/>
+                              <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Grid.Column="2"
+                                  PlaceholderText="Wdh"
+                                  Margin="5,0"/>
+                              <TextBox Text="{x:Bind Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Grid.Column="3"
+                                  PlaceholderText="Kommentar"
+                                  Margin="5,0"
+                                       FontSize="12"
+                                  TextWrapping="Wrap"
+                                  AcceptsReturn="True"
+                                       VerticalAlignment="Top"
+                                  MinHeight="40"
+                                  MaxHeight="100"/>
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+
+                    </StackPanel>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>

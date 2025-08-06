@@ -14,9 +14,11 @@ public class Uebung
     [Indexed]
     public Muskelgruppe Muskelgruppe { get; set; }
 
-    //Zusatzälich um direkt Uebungen von Trainingsplan direkt zu bekommen
     public int Trainingsplan_Id { get; set; }
     public int TagId { get; set; }
+
+    [Ignore] // Damit SQLite das Feld ignoriert
+    public Trainingseintrag? Trainingseintrag { get; set; }
 
     public Uebung() { }
 
