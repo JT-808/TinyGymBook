@@ -14,7 +14,6 @@ public class Trainingswoche
     public int Jahr { get; }
     public DateTime StartDatum { get; } // Montag
     public DateTime EndDatum { get; }   // Sonntag
-    public ObservableCollection<Trainingseintrag> Eintraege { get; } = new ObservableCollection<Trainingseintrag>();
 
     public Trainingswoche(int kalenderWoche, int jahr, DateTime startDatum)
     {
@@ -29,17 +28,5 @@ public class Trainingswoche
     {
         return $"KW {KalenderWoche} | {StartDatum:dd.MM.yyyy} - {EndDatum:dd.MM.yyyy}";
     }
-    public void UebernehmeTrainingsplan(Trainingsplan plan)
-    {
-        foreach (var uebung in plan.Uebungen)
-        {
-            var eintrag = new Trainingseintrag(uebung);
-            AddEintrag(eintrag);
-        }
-    }
 
-
-    public void AddEintrag(Trainingseintrag eintrag) => Eintraege.Add(eintrag);
-
-    public ObservableCollection<Uebung> GetUebungen() => new ObservableCollection<Uebung>(Eintraege.Select(e => e.Uebung));
 }

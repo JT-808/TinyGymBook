@@ -12,8 +12,13 @@ public class Trainingsplan
     [NotNull]
     public string Name { get; set; } = string.Empty;
 
+    //Collection Uebungen muss weg, da Verweis auf tage genutzt werden soll
+
     [Ignore]
     public ObservableCollection<Uebung> Uebungen { get; set; } = new();
+
+    [Ignore]
+    public ObservableCollection<Tag> tage { get; set; } = new();
 
     public Trainingsplan() { }
 
@@ -22,6 +27,4 @@ public class Trainingsplan
         Name = name;
         Uebungen = new ObservableCollection<Uebung>(uebungen);
     }
-
-    public void AddUebung(Uebung uebung) => Uebungen.Add(uebung);
 }

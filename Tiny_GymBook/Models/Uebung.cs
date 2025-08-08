@@ -1,4 +1,4 @@
-// Models/Uebung.cs
+using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Data;
 using SQLite;
 
@@ -19,6 +19,9 @@ public class Uebung
 
     [Ignore] // Damit SQLite das Feld ignoriert
     public Trainingseintrag? Trainingseintrag { get; set; }
+
+    [Ignore]
+    public ObservableCollection<Satz> Saetze { get; set; } = new();
 
     public Uebung() { }
 

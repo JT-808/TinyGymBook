@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Data;
 using SQLite;
+using Windows.Foundation.Metadata;
 
 namespace Tiny_GymBook.Models;
 
 [Bindable]
+[Obsolete("This method is obsolete. Call CallNewMethod instead.", false)]
 public class Trainingseintrag
 {
 
@@ -22,8 +24,6 @@ public class Trainingseintrag
     [Indexed]
     public int TagId { get; set; }
 
-    [Ignore] // falls du den Tag per Join laden willst
-    public Tag? Tag { get; set; }
 
     public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
 
@@ -33,55 +33,6 @@ public class Trainingseintrag
     [Ignore]
     public ObservableCollection<Satz> Saetze { get; set; } = new();
 
-    // Nur zur Initialisierung – nicht speichern
-    [Ignore]
-    public int StandardWiederholungen { get; set; }
-
-    [Ignore]
-    public double StandardGewicht { get; set; }
-
-    //public Trainingseintrag() { }
-
-    public Trainingseintrag(Uebung uebung)
-    {
-        Uebung = uebung.Copy();
-        Uebung_Id = uebung.Uebung_Id;
-
-
-        for (int i = 1; i <= 3; i++)
-        {
-            Saetze.Add(new Satz
-            {
-                Nummer = i,
-                Gewicht = 0,
-                Wiederholungen = 10,
-                Kommentar = string.Empty
-            });
-        }
-    }
-
-    public Trainingseintrag(Uebung uebung, int trainingsplanId, int anzahlSaetze, int wiederholungen, double gewicht, string kommentar, string? datum = null)
-    {
-        Uebung = uebung.Copy();
-        Uebung_Id = uebung.Uebung_Id;
-        Kommentar = kommentar;
-        Trainingsplan_Id = trainingsplanId;
-        Training_Date = datum ?? DateTime.Today.ToString("yyyy-MM-dd");
-
-        for (int i = 1; i <= anzahlSaetze; i++)
-        {
-            Saetze.Add(new Satz
-            {
-                Nummer = i,
-                Gewicht = gewicht,
-                Wiederholungen = wiederholungen,
-                Kommentar = kommentar
-            });
-        }
-
-        StandardWiederholungen = wiederholungen;
-        StandardGewicht = gewicht;
-    }
 
 
     public Trainingseintrag()
