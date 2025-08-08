@@ -18,7 +18,9 @@ public class Satz
     public int Wiederholungen { get; set; }
 
     public string Kommentar { get; set; } = string.Empty;
+    public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+
 
     [Indexed]
-    public int Trainingseintrag_Id { get; set; }
+    public int Uebung_Id { get; set; }   // FK auf Uebung
 }

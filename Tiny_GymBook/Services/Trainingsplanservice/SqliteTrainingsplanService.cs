@@ -28,16 +28,30 @@ public class SqliteTrainingsplanService : ITrainingsplanService
 
         _db = new SQLiteAsyncConnection(dbPfad);
     }
-
+    private bool _initialized; //false
     public async Task InitAsync()
     {
-        // Tabellen erzeugen, falls sie noch nicht existieren
-        await _db.CreateTableAsync<Trainingsplan>();
-        await _db.CreateTableAsync<Uebung>();
-        await _db.CreateTableAsync<Trainingseintrag>();
-        await _db.CreateTableAsync<Satz>();
-        await _db.CreateTableAsync<Tag>();
+        try
+        {
+            //Verhindere Double-init
+            if (_initialized) return;
+            _initialized = true;
+
+            await _db.CreateTableAsync<Trainingsplan>();
+            await _db.CreateTableAsync<Uebung>();
+            await _db.CreateTableAsync<Tag>();
+            await _db.CreateTableAsync<Satz>();
+
+            // Index (optional, schneller bei Abfragen):
+            await _db.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_satz_uebung_nummer ON Satz(Uebung_Id, Nummer)");
+        }
+        catch (SQLiteException ex)
+        {
+            Debug.WriteLine("[SQLite][InitAsync] " + ex.Message);
+            throw;
+        }
     }
+
 
     public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync()
     {
@@ -113,8 +127,6 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
-
-
     public async Task LoescheTrainingsplanAsync(Trainingsplan plan)
     {
         await _db.DeleteAsync(plan);
@@ -158,8 +170,6 @@ public class SqliteTrainingsplanService : ITrainingsplanService
     }
 
 
-
-
     public async Task<List<Tag>> LadeTageAsync(int trainingsplanId)
     {
         // Hole nur Tage für den angegebenen Trainingsplan
@@ -169,51 +179,46 @@ public class SqliteTrainingsplanService : ITrainingsplanService
             .ToListAsync();
     }
 
-
-
-
-    public async Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag)
-    {
-        if (eintrag.Eintrag_Id == 0)
-        {
-            await _db.InsertAsync(eintrag);
-            Debug.WriteLine($"[DEBUG] Trainingseintrag gespeichert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
-        }
-        else
-        {
-            await _db.UpdateAsync(eintrag);
-            Debug.WriteLine($"[DEBUG] Trainingseintrag aktualisiert: Id={eintrag.Eintrag_Id}, TagId={eintrag.TagId}");
-        }
-
-        // Jetzt die Sätze speichern
-        foreach (var satz in eintrag.Saetze)
-        {
-            satz.Trainingseintrag_Id = eintrag.Eintrag_Id; // FK setzen!
-            if (satz.Satz_Id == 0)
-            {
-                await _db.InsertAsync(satz);
-                Debug.WriteLine($"[DEBUG] Satz gespeichert: Id={satz.Satz_Id}");
-            }
-            else
-            {
-                await _db.UpdateAsync(satz);
-                Debug.WriteLine($"[DEBUG] Satz nach Update Id={satz.Satz_Id}");
-            }
-        }
-    }
-
-    public async Task<List<Trainingseintrag>> LadeAlleTrainingseintraegeAsync()
-    {
-        // Hole nur Einträge für den angegebenen Trainingsplan
-        return await _db.Table<Trainingseintrag>().ToListAsync();
-    }
-
-
-    public async Task<IEnumerable<Satz>> LadeSaetzeFuerEintragAsync(int eintragId)
+    // Nach umstruktierung
+    public async Task<List<Satz>> LadeSaetzeFuerUebungAsync(int uebungId)
     {
         return await _db.Table<Satz>()
-                        .Where(s => s.Trainingseintrag_Id == eintragId)
+                        .Where(s => s.Uebung_Id == uebungId)
+                        .OrderBy(s => s.Nummer)
                         .ToListAsync();
     }
+
+    public async Task SpeichereSaetzeFuerUebungAsync(int uebungId, IEnumerable<Satz> saetze)
+    {
+        // Bestehende Sätze holen
+        var bestehende = await _db.Table<Satz>()
+                                  .Where(s => s.Uebung_Id == uebungId)
+                                  .ToListAsync();
+
+        // Löschen, was entfernt wurde
+        var aktuelleIds = saetze.Where(s => s.Satz_Id != 0).Select(s => s.Satz_Id).ToHashSet();
+        foreach (var alt in bestehende)
+        {
+            if (!aktuelleIds.Contains(alt.Satz_Id))
+                await _db.DeleteAsync(alt);
+        }
+
+        // Einfügen/Aktualisieren
+        foreach (var satz in saetze)
+        {
+            satz.Uebung_Id = uebungId; // FK sicher setzen
+
+            if (satz.Satz_Id == 0)
+                await _db.InsertAsync(satz);
+            else
+                await _db.UpdateAsync(satz);
+        }
+    }
+
+
+
+
+
+
 
 }

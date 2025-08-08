@@ -59,13 +59,7 @@ public partial class PlanDetailViewModel : ObservableObject
     [RelayCommand]
     public async Task AddUebungToTagAsync(Tag tag)
     {
-        var uebung = new Uebung
-        {
-            Name = "Neue Übung",
-            Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0,
-            TagId = tag.TagId
-        };
-
+        var uebung = Uebung.CreateNew(Trainingsplan?.Trainingsplan_Id ?? 0, tag.TagId);
         await _trainingsplanService.SpeichereUebung(uebung);
         tag.Uebungen.Add(uebung);
     }

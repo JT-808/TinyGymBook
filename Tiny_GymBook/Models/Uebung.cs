@@ -14,11 +14,16 @@ public class Uebung
     [Indexed]
     public Muskelgruppe Muskelgruppe { get; set; }
 
+    public string Kommentar { get; set; } = string.Empty;
+
+    public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+
+
     public int Trainingsplan_Id { get; set; }
+
+    [Indexed]
     public int TagId { get; set; }
 
-    [Ignore] // Damit SQLite das Feld ignoriert
-    public Trainingseintrag? Trainingseintrag { get; set; }
 
     [Ignore]
     public ObservableCollection<Satz> Saetze { get; set; } = new();
@@ -27,9 +32,23 @@ public class Uebung
 
     public Uebung(string name, Muskelgruppe muskelgruppe)
     {
+        Saetze = new ObservableCollection<Satz>();
         Name = name;
+        Kommentar = string.Empty;
         Muskelgruppe = muskelgruppe;
     }
 
-    public Uebung Copy() => new Uebung(Name, Muskelgruppe);
+    public static Uebung CreateNew(int trainingsplanId, int tagId, string? name = null, Muskelgruppe muskel = default)
+    {
+        return new Uebung
+        {
+            Name = name ?? "Neue Übung",
+            Muskelgruppe = muskel, // Achtung: default(Enum)=0 -> stell sicher, dass 0 ein gültiger Wert ist
+            Trainingsplan_Id = trainingsplanId,
+            TagId = tagId,
+            Kommentar = string.Empty,
+            Training_Date = DateTime.Today.ToString("yyyy-MM-dd"),
+            Saetze = new ObservableCollection<Satz>()
+        };
+    }
 }

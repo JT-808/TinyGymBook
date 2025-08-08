@@ -14,16 +14,21 @@ public interface ITrainingsplanService
     Task SpeichereUebung(Uebung uebung);
     Task SpeichereTagAsync(Tag tag);
 
-
     Task InitAsync();
 
-
-    Task SpeichereTrainingseintragAsync(Trainingseintrag eintrag);
-
-    Task<List<Trainingseintrag>> LadeAlleTrainingseintraegeAsync();
     Task<List<Tag>> LadeTageAsync(int trainingsplanId);
 
-    Task<IEnumerable<Satz>> LadeSaetzeFuerEintragAsync(int eintragId);
+
+
+    // nach umstruktirierung
+
+    Task<List<Satz>> LadeSaetzeFuerUebungAsync(int uebungId);
+    Task SpeichereSaetzeFuerUebungAsync(int uebungId, IEnumerable<Satz> saetze);
+
+
+
+
+
 
     // Optional: Nur im Json-Service sinnvoll implementiert
     //Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene);

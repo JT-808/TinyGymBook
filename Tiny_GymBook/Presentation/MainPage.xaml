@@ -75,11 +75,11 @@
                         <Button Content="+"
                                 Grid.Column="1"
                                 Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
-                                CommandParameter="{Binding}"/>
+                                CommandParameter="{x:Bind}"/>
                       </Grid>
 
                       <!-- Sätze zu dieser Übung -->
-                      <ItemsControl ItemsSource="{x:Bind Trainingseintrag.Saetze, Mode=OneWay}"
+                      <ItemsControl ItemsSource="{x:Bind Saetze, Mode=OneWay}"
                                     Margin="0,10">
                         <ItemsControl.ItemTemplate>
                           <DataTemplate x:DataType="models:Satz">
@@ -91,25 +91,25 @@
                                 <ColumnDefinition Width="2*"/>
                               </Grid.ColumnDefinitions>
                               <TextBlock Text="{x:Bind Nummer}"
-                                  Margin="0,0,10,0"/>
+                                         Margin="0,0,10,0"/>
                               <TextBox Text="{x:Bind Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        Grid.Column="1"
-                                  PlaceholderText="KG"
-                                  Margin="5,0"/>
+                                       PlaceholderText="KG"
+                                       Margin="5,0"/>
                               <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        Grid.Column="2"
-                                  PlaceholderText="Wdh"
-                                  Margin="5,0"/>
+                                       PlaceholderText="Wdh"
+                                       Margin="5,0"/>
                               <TextBox Text="{x:Bind Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        Grid.Column="3"
-                                  PlaceholderText="Kommentar"
-                                  Margin="5,0"
+                                       PlaceholderText="Kommentar"
+                                       Margin="5,0"
                                        FontSize="12"
-                                  TextWrapping="Wrap"
-                                  AcceptsReturn="True"
+                                       TextWrapping="Wrap"
+                                       AcceptsReturn="True"
                                        VerticalAlignment="Top"
-                                  MinHeight="40"
-                                  MaxHeight="100"/>
+                                       MinHeight="40"
+                                       MaxHeight="100"/>
                             </Grid>
                           </DataTemplate>
                         </ItemsControl.ItemTemplate>

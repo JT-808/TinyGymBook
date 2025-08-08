@@ -64,12 +64,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        // 1. Tage und Übungen zum Plan laden
         var tage = await _trainingsplanService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
         var uebungen = await _trainingsplanService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
-
-        // 2. Trainingseinträge laden (z.B. für aktuelle Woche, oder alles)
-        var eintraege = await _trainingsplanService.LadeAlleTrainingseintraegeAsync();
 
         AlleTage.Clear();
 
@@ -77,39 +73,17 @@ public partial class MainViewModel : ObservableObject
         {
             tag.Uebungen.Clear();
 
-            // Alle Übungen für diesen Tag
             var uebungenFuerTag = uebungen.Where(u => u.TagId == tag.TagId);
 
             foreach (var uebung in uebungenFuerTag)
             {
-                // Finde passenden Eintrag
-                var eintrag = eintraege.FirstOrDefault(e =>
-                    e.Trainingsplan_Id == AktiverPlan.Trainingsplan_Id &&
-                    e.Uebung_Id == uebung.Uebung_Id
-                // Hier könnte man noch nach Datum/Woche filtern!
-                );
+                // Sätze direkt für die Übung laden (Optional: Wochen-/Datumsfilter hinzufügen)
+                var saetze = await _trainingsplanService.LadeSaetzeFuerUebungAsync(uebung.Uebung_Id /*, filter*/);
+                uebung.Saetze = new ObservableCollection<Satz>(saetze);
 
-                // Falls noch kein Eintrag für diese Übung existiert, erstelle einen leeren
-                if (eintrag == null)
-                {
-                    eintrag = new Trainingseintrag
-                    {
-                        Trainingsplan_Id = AktiverPlan.Trainingsplan_Id,
-                        Uebung_Id = uebung.Uebung_Id,
-                        Uebung = uebung,
-                        Saetze = new ObservableCollection<Satz>()
-                    };
-                }
-                else
-                {
-                    // Sätze laden
-                    var saetze = await _trainingsplanService.LadeSaetzeFuerEintragAsync(eintrag.Eintrag_Id);
-                    eintrag.Saetze = new ObservableCollection<Satz>(saetze);
-                }
-
-                uebung.Trainingseintrag = eintrag;
                 tag.Uebungen.Add(uebung);
             }
+
             AlleTage.Add(tag);
         }
     }
@@ -117,31 +91,34 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public void AddSatz(Uebung uebung)
     {
-        if (uebung == null || uebung.Trainingseintrag == null)
+        if (uebung == null)
             return;
 
-        int neueNummer = (uebung.Trainingseintrag.Saetze.Count) + 1;
-        uebung.Trainingseintrag.Saetze.Add(new Satz
+        int neueNummer = uebung.Saetze.Count + 1;
+        uebung.Saetze.Add(new Satz
         {
             Nummer = neueNummer,
+            Uebung_Id = uebung.Uebung_Id,  // <-- Stelle sicher, dass Satz das FK-Feld hat!
             Gewicht = 0,
             Wiederholungen = 0,
-            Kommentar = string.Empty
+            Kommentar = string.Empty,
+            Training_Date = DateTime.Today.ToString("yyyy-MM-dd") // falls im Satz vorhanden
         });
     }
 
     [RelayCommand]
     private async Task NavigateToPlaeneAsync()
     {
-        // Speichere alle Trainingseinträge mit ihren Sätzen
+        // Speichere alle Übungen + deren Sätze
         foreach (var tag in AlleTage)
         {
             foreach (var uebung in tag.Uebungen)
             {
-                if (uebung.Trainingseintrag != null)
-                    await _trainingsplanService.SpeichereTrainingseintragAsync(uebung.Trainingseintrag);
+                await _trainingsplanService.SpeichereUebung(uebung);
+                await _trainingsplanService.SpeichereSaetzeFuerUebungAsync(uebung.Uebung_Id, uebung.Saetze);
             }
         }
+
         await LadeTageMitUebungenUndEintraegenAsync();
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
     }
