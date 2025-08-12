@@ -43,7 +43,7 @@ public class Uebung
         return new Uebung
         {
             Name = name ?? "Neue Übung",
-            Muskelgruppe = muskel, // Achtung: default(Enum)=0 -> stell sicher, dass 0 ein gültiger Wert ist
+            Muskelgruppe = muskel, // Achtung: default(Enum)=0 -> Brust
             Trainingsplan_Id = trainingsplanId,
             TagId = tagId,
             Kommentar = string.Empty,

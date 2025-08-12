@@ -7,9 +7,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Tiny_GymBook.Models;
 
-namespace Tiny_GymBook.Services.Trainingsplanservice;
+namespace Tiny_GymBook.Services.DataService;
 
-public class SqliteTrainingsplanService : ITrainingsplanService
+public class SqliteTrainingsplanService : IDataService
 {
     private readonly SQLiteAsyncConnection _db;
 
@@ -178,6 +178,9 @@ public class SqliteTrainingsplanService : ITrainingsplanService
             .OrderBy(t => t.Reihenfolge)
             .ToListAsync();
     }
+
+
+
 
     // Nach umstruktierung
     public async Task<List<Satz>> LadeSaetzeFuerUebungAsync(int uebungId)

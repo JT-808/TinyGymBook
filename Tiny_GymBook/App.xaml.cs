@@ -1,6 +1,7 @@
 using Uno.Resizetizer;
-using Tiny_GymBook.Services.Trainingsplanservice;
+using Tiny_GymBook.Services.DataService;
 using System.Diagnostics;
+using Tiny_GymBook.Services.TrainingsplanIO;
 
 namespace Tiny_GymBook;
 
@@ -9,14 +10,13 @@ public partial class App : Application
 
     public App()
     {
-        // Diesen Aufruf brauchst du
         this.InitializeComponent();
-
         // wenn App minimiert wird
         this.Suspending += OnSuspending;
 
     }
 
+    //TODO: beim minimieren alles Speichern
     private async void OnSuspending(object sender, SuspendingEventArgs e)
     {
         // TODO: ViewModel/Service aufrufen und speichern!
@@ -34,9 +34,8 @@ public partial class App : Application
 
     private async Task SaveAllDataAsync()
     {
-        // Zugriff auf dein ViewModel/Service
-        // z.B. (singleton, DI, ServiceLocator ...)
-        // await DeinTrainingsplanService.SpeichereAlleOffenenEintraegeAsync();
+
+        // await DeinTrainingsplanService.SpeichereAlles();
     }
 
 
@@ -84,7 +83,8 @@ public partial class App : Application
                     services.AddTransient<SecondViewModel>();
                     services.AddTransient<PlanDetailViewModel>();
                     //     services.AddSingleton<ITrainingsplanService, JsonTrainingsplanService>();
-                    services.AddSingleton<ITrainingsplanService, SqliteTrainingsplanService>();
+                    services.AddSingleton<IDataService, SqliteTrainingsplanService>();
+                    services.AddSingleton<ITrainingsplanIOService, JsonTrainingsplanService>();
                     // Hier Ihre eigenen Services registrieren
                 })
                 .UseNavigation(RegisterRoutes)
@@ -108,7 +108,7 @@ public partial class App : Application
             Debug.WriteLine($"[DEBUG] MainWindow.Content ist kein FrameworkElement!");
 
 
-        var trainingsplanService = Host.Services.GetRequiredService<ITrainingsplanService>();
+        var trainingsplanService = Host.Services.GetRequiredService<IDataService>();
         await trainingsplanService.InitAsync();
 
     }

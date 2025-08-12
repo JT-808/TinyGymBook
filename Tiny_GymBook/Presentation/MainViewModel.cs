@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
-using Tiny_GymBook.Services.Trainingsplanservice;
+using Tiny_GymBook.Services.DataService;
 
 namespace Tiny_GymBook.Presentation;
 
@@ -12,7 +12,7 @@ namespace Tiny_GymBook.Presentation;
 public partial class MainViewModel : ObservableObject
 {
     private readonly INavigator _navigator;
-    private readonly ITrainingsplanService _trainingsplanService;
+    private readonly IDataService _trainingsplanDBService;
 
     [ObservableProperty]
     private Trainingswoche? aktuelleWoche;
@@ -23,17 +23,17 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<Trainingsplan> AllePlaene { get; } = new();
     public ObservableCollection<Tag> AlleTage { get; } = new(); // HIER: Alle Tage + Übungen + Sätze!
 
-    public MainViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
+    public MainViewModel(INavigator navigator, IDataService trainingsplanService)
     {
         _navigator = navigator;
-        _trainingsplanService = trainingsplanService;
+        _trainingsplanDBService = trainingsplanService;
         InitializeWeek();
         _ = LadeAllePlaeneAsync();
     }
 
     private async Task LadeAllePlaeneAsync()
     {
-        var plaene = await _trainingsplanService.LadeTrainingsplaeneAsync();
+        var plaene = await _trainingsplanDBService.LadeTrainingsplaeneAsync();
         AllePlaene.Clear();
         foreach (var plan in plaene)
             AllePlaene.Add(plan);
@@ -64,8 +64,8 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        var tage = await _trainingsplanService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
-        var uebungen = await _trainingsplanService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
+        var tage = await _trainingsplanDBService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
+        var uebungen = await _trainingsplanDBService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
 
         AlleTage.Clear();
 
@@ -78,7 +78,7 @@ public partial class MainViewModel : ObservableObject
             foreach (var uebung in uebungenFuerTag)
             {
                 // Sätze direkt für die Übung laden (Optional: Wochen-/Datumsfilter hinzufügen)
-                var saetze = await _trainingsplanService.LadeSaetzeFuerUebungAsync(uebung.Uebung_Id /*, filter*/);
+                var saetze = await _trainingsplanDBService.LadeSaetzeFuerUebungAsync(uebung.Uebung_Id /*, filter*/);
                 uebung.Saetze = new ObservableCollection<Satz>(saetze);
 
                 tag.Uebungen.Add(uebung);
@@ -114,8 +114,8 @@ public partial class MainViewModel : ObservableObject
         {
             foreach (var uebung in tag.Uebungen)
             {
-                await _trainingsplanService.SpeichereUebung(uebung);
-                await _trainingsplanService.SpeichereSaetzeFuerUebungAsync(uebung.Uebung_Id, uebung.Saetze);
+                await _trainingsplanDBService.SpeichereUebung(uebung);
+                await _trainingsplanDBService.SpeichereSaetzeFuerUebungAsync(uebung.Uebung_Id, uebung.Saetze);
             }
         }
 

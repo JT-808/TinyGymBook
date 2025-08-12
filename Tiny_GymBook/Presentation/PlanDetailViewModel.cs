@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
 using Uno.Extensions.Navigation;
-using Tiny_GymBook.Services.Trainingsplanservice;
+using Tiny_GymBook.Services.DataService;
 
 using Microsoft.UI.Xaml.Data;
 
@@ -15,7 +15,7 @@ namespace Tiny_GymBook.Presentation;
 public partial class PlanDetailViewModel : ObservableObject
 {
     private readonly INavigator _navigator;
-    private readonly ITrainingsplanService _trainingsplanService;
+    private readonly IDataService _trainingsplanDBService;
 
     [ObservableProperty]
     private Trainingsplan? trainingsplan;
@@ -23,12 +23,12 @@ public partial class PlanDetailViewModel : ObservableObject
     public ObservableCollection<Tag> Tage { get; } = new();
 
 
-    public PlanDetailViewModel(INavigator navigator, ITrainingsplanService trainingsplanService, Trainingsplan plan)
+    public PlanDetailViewModel(INavigator navigator, IDataService trainingsplanService, Trainingsplan plan)
     {
         Debug.WriteLine("[DEBUG] PlanDetailViewModel Konstruktor aufgerufen!");
 
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
-        _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
+        _trainingsplanDBService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
         Trainingsplan = plan;
 
         _ = LadeTageUndUebungenAsync();
@@ -38,8 +38,8 @@ public partial class PlanDetailViewModel : ObservableObject
     {
         if (Trainingsplan is null) return;
 
-        var tageAusDb = await _trainingsplanService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
-        var uebungenAusDb = await _trainingsplanService.LadeUebungenZuPlanAsync(Trainingsplan.Trainingsplan_Id);
+        var tageAusDb = await _trainingsplanDBService.LadeTageAsync(Trainingsplan.Trainingsplan_Id);
+        var uebungenAusDb = await _trainingsplanDBService.LadeUebungenZuPlanAsync(Trainingsplan.Trainingsplan_Id);
 
         Tage.Clear();
 
@@ -60,7 +60,7 @@ public partial class PlanDetailViewModel : ObservableObject
     public async Task AddUebungToTagAsync(Tag tag)
     {
         var uebung = Uebung.CreateNew(Trainingsplan?.Trainingsplan_Id ?? 0, tag.TagId);
-        await _trainingsplanService.SpeichereUebung(uebung);
+        await _trainingsplanDBService.SpeichereUebung(uebung);
         tag.Uebungen.Add(uebung);
     }
 
@@ -74,7 +74,7 @@ public partial class PlanDetailViewModel : ObservableObject
             Reihenfolge = nextNr,
             Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0
         };
-        await _trainingsplanService.SpeichereTagAsync(newTag);
+        await _trainingsplanDBService.SpeichereTagAsync(newTag);
         Tage.Add(newTag);
     }
 
@@ -88,7 +88,7 @@ public partial class PlanDetailViewModel : ObservableObject
         }
         try
         {
-            await _trainingsplanService.SpeichereTrainingsplanAsync(Trainingsplan, Tage);
+            await _trainingsplanDBService.SpeichereTrainingsplanAsync(Trainingsplan, Tage);
             await _navigator.NavigateBackAsync(this);
         }
         catch (Exception ex)

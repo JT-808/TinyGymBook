@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
-using Tiny_GymBook.Services.Trainingsplanservice;
+using Tiny_GymBook.Services.DataService;
 
 namespace Tiny_GymBook.Presentation;
 
@@ -12,7 +12,7 @@ namespace Tiny_GymBook.Presentation;
 public partial class SecondViewModel : ObservableObject
 {
     private readonly INavigator _navigator;
-    private readonly ITrainingsplanService _trainingsplanService;
+    private readonly IDataService _trainingsplanDBService;
 
     [ObservableProperty]
     private ObservableCollection<Trainingsplan> trainingsplaene = new();
@@ -20,10 +20,10 @@ public partial class SecondViewModel : ObservableObject
     [ObservableProperty]
     private Trainingsplan? trainingsplan;
 
-    public SecondViewModel(INavigator navigator, ITrainingsplanService trainingsplanService)
+    public SecondViewModel(INavigator navigator, IDataService trainingsplanService)
     {
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
-        _trainingsplanService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
+        _trainingsplanDBService = trainingsplanService ?? throw new ArgumentNullException(nameof(trainingsplanService));
 
         Debug.WriteLine($"[DEBUG] Navigator initialisiert: {_navigator.GetType().Name}");
 
@@ -33,7 +33,7 @@ public partial class SecondViewModel : ObservableObject
     private async Task LadeTrainingsplaeneAsync()
     {
         Debug.WriteLine("[DEBUG] Starte LadeTrainingsplaeneAsync()");
-        var geladenePlaene = await _trainingsplanService.LadeTrainingsplaeneAsync();
+        var geladenePlaene = await _trainingsplanDBService.LadeTrainingsplaeneAsync();
         Trainingsplaene.Clear();
         foreach (var plan in geladenePlaene)
         {
@@ -51,7 +51,7 @@ public partial class SecondViewModel : ObservableObject
     {
         // Plan erzeugen und speichern
         var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
-        await _trainingsplanService.SpeichereTrainingsplanAsync(neuerPlan, new List<Tag>());
+        await _trainingsplanDBService.SpeichereTrainingsplanAsync(neuerPlan, new List<Tag>());
 
         // Pläne neu laden
         await LadeTrainingsplaeneAsync();
@@ -73,7 +73,7 @@ public partial class SecondViewModel : ObservableObject
     {
         if (plan is null) return;
 
-        await _trainingsplanService.LoescheTrainingsplanAsync(plan);
+        await _trainingsplanDBService.LoescheTrainingsplanAsync(plan);
         await LadeTrainingsplaeneAsync();
     }
 

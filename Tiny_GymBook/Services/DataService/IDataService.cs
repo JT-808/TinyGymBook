@@ -2,34 +2,25 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tiny_GymBook.Models;
 
-namespace Tiny_GymBook.Services.Trainingsplanservice;
+namespace Tiny_GymBook.Services.DataService;
 
-public interface ITrainingsplanService
+public interface IDataService
 {
-    Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync();
-    Task SpeichereTrainingsplanAsync(Trainingsplan plan, IEnumerable<Tag> tage);
-    Task LoescheTrainingsplanAsync(Trainingsplan plan);
-    Task<List<Uebung>> LadeUebungenZuPlanAsync(int trainingsplanId);
-
-    Task SpeichereUebung(Uebung uebung);
-    Task SpeichereTagAsync(Tag tag);
-
     Task InitAsync();
-
+    Task SpeichereTrainingsplanAsync(Trainingsplan plan, IEnumerable<Tag> tage);
+    Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync();
+    Task LoescheTrainingsplanAsync(Trainingsplan plan);
+    Task SpeichereUebung(Uebung uebung);
+    Task<List<Uebung>> LadeUebungenZuPlanAsync(int trainingsplanId);
+    Task SpeichereTagAsync(Tag tag);
     Task<List<Tag>> LadeTageAsync(int trainingsplanId);
 
 
+    //TODO Löschetag und LöscheÜbung
 
-    // nach umstruktirierung
 
     Task<List<Satz>> LadeSaetzeFuerUebungAsync(int uebungId);
     Task SpeichereSaetzeFuerUebungAsync(int uebungId, IEnumerable<Satz> saetze);
 
 
-
-
-
-
-    // Optional: Nur im Json-Service sinnvoll implementiert
-    //Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene);
 }

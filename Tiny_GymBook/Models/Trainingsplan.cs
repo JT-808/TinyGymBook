@@ -12,6 +12,7 @@ public class Trainingsplan
     [NotNull]
     public string Name { get; set; } = string.Empty;
 
+    //TODO
     //Collection Uebungen muss weg, da Verweis auf tage genutzt werden soll
 
     [Ignore]
