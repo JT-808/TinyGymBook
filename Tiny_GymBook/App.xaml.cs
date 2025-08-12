@@ -40,6 +40,7 @@ public partial class App : Application
 
 
     protected Window? MainWindow { get; private set; }
+    public static Window? MainAppWindow { get; private set; }
     protected IHost? Host { get; private set; }
 
 
@@ -78,6 +79,7 @@ public partial class App : Application
                 })
                 .ConfigureServices((context, services) =>
                 {
+
                     services.AddTransient<ShellViewModel>();
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<SecondViewModel>();
@@ -91,6 +93,7 @@ public partial class App : Application
             );
 
         MainWindow = builder.Window;
+        MainAppWindow = MainWindow;
 
 
 #if DEBUG

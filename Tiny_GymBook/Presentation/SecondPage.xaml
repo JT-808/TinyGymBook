@@ -40,7 +40,6 @@
     <ListView Grid.Row="1"
               ItemsSource="{Binding Trainingsplaene}"
               SelectedItem="{Binding SelectedPlan, Mode=TwoWay}"
-              SelectionMode="None"
               Margin="0,8">
       <ListView.ItemTemplate>
         <DataTemplate x:DataType="models:Trainingsplan">
@@ -51,14 +50,16 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
-              <!-- Für Detailansicht -->
+              <!-- Detail -->
               <ColumnDefinition Width="Auto"/>
-              <!-- Für Löschen -->
+              <!-- Export -->
+              <ColumnDefinition Width="Auto"/>
+              <!-- Löschen -->
             </Grid.ColumnDefinitions>
-
-            <TextBlock Text="{x:Bind Name}"
+            <TextBlock Text="{Binding Name}"
                        FontSize="16"
                        VerticalAlignment="Center"/>
+
             <Button Content=">"
                     Command="{Binding DataContext.OpenPlanCommand, ElementName=SecondPageRoot}"
                     CommandParameter="{x:Bind}"
@@ -66,27 +67,36 @@
                     Margin="12,0,0,0"
                     VerticalAlignment="Center"/>
 
+            <!-- NEU: Export dieses Plans -->
+            <Button Content="Export"
+                    Command="{Binding DataContext.ExportPlanCommand, ElementName=SecondPageRoot}"
+                    CommandParameter="{x:Bind}"
+                    Grid.Column="2"
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center"/>
+
             <Button Content="🗑"
                     Command="{Binding DataContext.DeletePlanCommand, ElementName=SecondPageRoot}"
                     CommandParameter="{Binding}"
-                    Grid.Column="2"
+                    Grid.Column="3"
                     Margin="12,0,0,0"
                     VerticalAlignment="Center"
                     Foreground="Red"/>
-
-
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
 
     <!-- Hinzufügen-Button -->
-    <Button Grid.Row="2"
-            Content="Trainingsplan hinzufügen"
-            Command="{Binding AddPlanCommand}"
-            Margin="0,12"
-            HorizontalAlignment="Center"/>
-
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="12">
+      <Button Content="Trainingsplan hinzufügen"
+              Command="{Binding AddPlanCommand}"/>
+      <Button Content="Importieren aus JSON"
+              Command="{Binding ImportFromJsonCommand}"/>
+    </StackPanel>
 
     <!-- TabBar -->
     <utu:TabBar Grid.Row="3"

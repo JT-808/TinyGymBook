@@ -8,11 +8,14 @@ public interface ITrainingsplanIOService
 {
 
     Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync();
-    public Task LoescheTrainingsplanAsync(Trainingsplan plan);
+
+    Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync(Stream stream);
+
 
     public Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene);
 
-    public Task SpeichereTrainingsplanAsync(Trainingsplan plan);
+    public Task SpeichereTrainingsplanAsync(Trainingsplan plan); //einzelner Plan
+
 
 
 }
