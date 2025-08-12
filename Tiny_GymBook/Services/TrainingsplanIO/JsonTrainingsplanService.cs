@@ -64,13 +64,6 @@ public class JsonTrainingsplanService : ITrainingsplanIOService
         return result;
     }
 
-    // Schreibt ALLE Pläne in eine Sammeldatei im Export-Ordner
-    public async Task SpeichereAlleTrainingsplaeneJsonAsync(IEnumerable<Trainingsplan> plaene)
-    {
-        var zielDatei = Path.Combine(_exportOrdner, "trainingsplaene.json");
-        var json = JsonSerializer.Serialize(plaene, _jsonOptionen);
-        await File.WriteAllTextAsync(zielDatei, json);
-    }
 
 
     public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync(Stream stream)
