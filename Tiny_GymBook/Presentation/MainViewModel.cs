@@ -55,6 +55,9 @@ public partial class MainViewModel : ObservableObject
     private void InitializeWeek()
     {
         var heute = DateTime.Today;
+
+        //var heute = new DateTime(2025, 9, 01); // <<< Testdatum
+
         int offset = ((int)heute.DayOfWeek + 6) % 7; // Mo=0, So=6
         var montag = heute.AddDays(-offset);
         var kw = System.Globalization.ISOWeek.GetWeekOfYear(heute);
@@ -64,7 +67,7 @@ public partial class MainViewModel : ObservableObject
     // Immer wenn sich der aktive Plan ändert, lade die Tage/Übungen/Sätze neu!
     partial void OnAktiverPlanChanged(Trainingsplan? value)
     {
-        _ = LoadInitialWeeksAsync();
+        _ = RebuildCurrentWeekFromActivePlanAsync();
     }
 
 
@@ -121,11 +124,22 @@ public partial class MainViewModel : ObservableObject
     public async Task LoadInitialWeeksAsync()
     {
         Wochen.Clear();
-        if (AktuelleWoche is null) return;
+        if (AktuelleWoche is null)
+            return;
 
-        var woche = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
-        if (woche.Tage.Any())        // nur wenn Inhalte vorhanden
-            Wochen.Add(woche);
+        if (AktiverPlan is not null)
+        {
+            // aktuelle Woche = Struktur des aktiven Plans
+            var w0 = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche, AktiverPlan.Trainingsplan_Id);
+            Wochen.Add(w0);
+        }
+        else
+        {
+            // Fallback: aggregierte Ansicht
+            var w0 = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
+            if (w0.Tage.Any())
+                Wochen.Add(w0);
+        }
     }
 
     [RelayCommand]
@@ -134,7 +148,10 @@ public partial class MainViewModel : ObservableObject
         if (Wochen.Count == 0)
         {
             if (AktuelleWoche is null) return;
-            var w0 = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
+            var w0 = (AktiverPlan is not null)
+                ? await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche, AktiverPlan.Trainingsplan_Id)
+                : await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
+
             if (w0.Tage.Any()) Wochen.Add(w0);
             return;
         }
@@ -147,31 +164,26 @@ public partial class MainViewModel : ObservableObject
         var pj = System.Globalization.ISOWeek.GetYear(prevMonday);
         var pkw = System.Globalization.ISOWeek.GetWeekOfYear(prevMonday);
 
-        // Optional: Duplikate vermeiden, falls schon geladen
         if (Wochen.Any(w => w.Jahr == pj && w.KalenderWoche == pkw))
             return;
 
+        // ältere Wochen = aggregierte Historie
         var woche = await BuildWeekAsync(pj, pkw);
         if (woche.Tage.Any())
             Wochen.Insert(0, woche);
     }
 
 
-    private async Task<Trainingswoche> BuildWeekAsync(int jahr, int kw)
+    private async Task<Trainingswoche> BuildWeekAsync(int jahr, int kw, int? planIdFilter = null)
     {
         var montag = System.Globalization.ISOWeek.ToDateTime(jahr, kw, DayOfWeek.Monday);
         var woche = new Trainingswoche(kw, jahr, montag);
 
-        // 1) Historische Sätze dieser Woche (planübergreifend)
-        var saetzeWoche = await _trainingsplanDBService.LadeSaetzeInWocheAsync(jahr, kw);
-
-        if (saetzeWoche.Count == 0)
+        if (planIdFilter.HasValue)
         {
-            // Fallback: aktive Planstruktur anzeigen (ohne Sätze)
-            if (AktiverPlan is null) return woche;
-
-            var tage = await _trainingsplanDBService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
-            var uebungenPlan = await _trainingsplanDBService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
+            // —— Plan-spezifische Ansicht für diese Woche —— //
+            var tage = await _trainingsplanDBService.LadeTageAsync(planIdFilter.Value);
+            var uebungenPlan = await _trainingsplanDBService.LadeUebungenZuPlanAsync(planIdFilter.Value);
 
             foreach (var t in tage.OrderBy(t => t.Reihenfolge))
             {
@@ -184,6 +196,10 @@ public partial class MainViewModel : ObservableObject
 
                 foreach (var u in uebungenPlan.Where(u => u.TagId == t.TagId).OrderBy(u => u.Name))
                 {
+                    // Falls es schon Sätze dieser Übung in dieser Woche gibt, laden und anhängen:
+                    var saetze = await _trainingsplanDBService
+                        .LadeSaetzeFuerUebungInWocheAsync(u.Uebung_Id, jahr, kw);
+
                     tagVm.Uebungen.Add(new Uebung
                     {
                         Uebung_Id = u.Uebung_Id,
@@ -191,7 +207,7 @@ public partial class MainViewModel : ObservableObject
                         Muskelgruppe = u.Muskelgruppe,
                         TagId = u.TagId,
                         Trainingsplan_Id = u.Trainingsplan_Id,
-                        Saetze = new ObservableCollection<Satz>()
+                        Saetze = new ObservableCollection<Satz>(saetze.OrderBy(s => s.Nummer))
                     });
                 }
 
@@ -201,7 +217,11 @@ public partial class MainViewModel : ObservableObject
             return woche;
         }
 
-        // --- Bestehende Logik für Wochen mit Sätzen (planübergreifend) ---
+        // —— Aggregierte Historie (deine bestehende Logik) —— //
+        var saetzeWoche = await _trainingsplanDBService.LadeSaetzeInWocheAsync(jahr, kw);
+        if (saetzeWoche.Count == 0)
+            return woche;
+
         var uebungIds = saetzeWoche.Select(s => s.Uebung_Id).Distinct().ToList();
         var uebungen = await _trainingsplanDBService.LadeUebungenByIdsAsync(uebungIds);
         var uDict = uebungen.ToDictionary(u => u.Uebung_Id);
@@ -261,6 +281,45 @@ public partial class MainViewModel : ObservableObject
         return woche;
     }
 
+    [RelayCommand]
+    public async Task ApplyPlanToCurrentWeekAsync()
+    {
+        if (AktuelleWoche is null || AktiverPlan is null) return;
+
+        var neueWoche = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche, AktiverPlan.Trainingsplan_Id);
+
+        // Ersetze die aktuelle Woche (falls schon vorhanden) oder füge sie hinzu
+        var exist = Wochen.FirstOrDefault(w => w.Jahr == neueWoche.Jahr && w.KalenderWoche == neueWoche.KalenderWoche);
+        if (exist is not null)
+        {
+            var idx = Wochen.IndexOf(exist);
+            Wochen[idx] = neueWoche;
+        }
+        else
+        {
+            Wochen.Add(neueWoche);
+        }
+    }
+
+
+    private async Task RebuildCurrentWeekFromActivePlanAsync()
+    {
+        if (AktuelleWoche is null || AktiverPlan is null) return;
+
+        var wNeu = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche, AktiverPlan.Trainingsplan_Id);
+
+        // vorhandene aktuelle Woche im Feed ersetzen oder hinzufügen
+        var exist = Wochen.FirstOrDefault(w => w.Jahr == wNeu.Jahr && w.KalenderWoche == wNeu.KalenderWoche);
+        if (exist is not null)
+        {
+            var idx = Wochen.IndexOf(exist);
+            Wochen[idx] = wNeu;
+        }
+        else
+        {
+            Wochen.Add(wNeu);
+        }
+    }
 
 
 }
