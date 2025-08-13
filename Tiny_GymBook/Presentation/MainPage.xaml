@@ -4,113 +4,167 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:utu="using:Uno.Toolkit.UI"
+      xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       xmlns:models="using:Tiny_GymBook.Models"
       mc:Ignorable="d"
       x:Name="RootPage"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-  <Grid Padding="12">
+  <Grid Padding="16,12">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
+      <!-- Header -->
       <RowDefinition Height="Auto"/>
+      <!-- Load older -->
       <RowDefinition Height="*"/>
+      <!-- Feed -->
       <RowDefinition Height="Auto"/>
+      <!-- Bottom Nav -->
     </Grid.RowDefinitions>
 
-    <!-- WochenHeader -->
-    <TextBlock Grid.Row="0"
-               Text="{Binding AktuelleWoche.WochenHeaderText}"
-               FontSize="18"
-               FontWeight="Bold"
-               Margin="0,0,0,12"/>
+    <!-- HEADER: aktuelle Woche + Planwahl -->
+    <Grid Grid.Row="0"
+        ColumnSpacing="12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
 
-    <!-- Plan-Auswahl -->
-    <StackPanel Grid.Row="1"
-                Orientation="Horizontal"
-                VerticalAlignment="Center"
-                Spacing="8">
-      <ComboBox ItemsSource="{Binding AllePlaene}"
-                SelectedItem="{Binding AktiverPlan, Mode=TwoWay}"
-                DisplayMemberPath="Name"
-                PlaceholderText="Wähle einen Plan"/>
-      <TextBlock Text="{Binding AllePlaene.Count}"
-                 Margin="12,0,0,0"/>
-    </StackPanel>
+      <TextBlock Text="{Binding AktuelleWoche.WochenHeaderText}"
+                 FontSize="18"
+                 FontWeight="Bold"
+                 VerticalAlignment="Center"/>
 
-    <!-- Tage-Übungen-Sätze Hierarchie -->
+      <StackPanel Grid.Column="1"
+                  Orientation="Horizontal"
+                  Spacing="8"
+                  VerticalAlignment="Center">
+        <ComboBox ItemsSource="{Binding AllePlaene}"
+                  SelectedItem="{Binding AktiverPlan, Mode=TwoWay}"
+                  DisplayMemberPath="Name"
+                  PlaceholderText="Plan wählen"
+                  MinWidth="220"/>
+        <TextBlock Text="{Binding AllePlaene.Count}"
+                   VerticalAlignment="Center"
+                   Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+      </StackPanel>
+    </Grid>
+
+    <!-- Ältere Woche laden -->
+    <Button Grid.Row="1"
+            Content="Ältere Woche laden"
+            Margin="0,8,0,8"
+            Command="{Binding LoadOlderWeekCommand}"/>
+
+    <!-- FEED: mehrere Trainingswochen untereinander -->
     <ScrollViewer Grid.Row="2"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-      <ItemsControl ItemsSource="{Binding AlleTage}">
+      <ItemsControl ItemsSource="{Binding Wochen}">
         <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="models:Tag">
-            <StackPanel Margin="0,0,0,20"
-                        BorderBrush="LightGray"
-                        BorderThickness="0,0,0,1">
+          <DataTemplate DataType="models:Trainingswoche">
+            <StackPanel Margin="0,0,0,20">
 
-              <!-- Tag-Name -->
-              <TextBlock Text="{x:Bind Name, Mode=OneWay}"
-                         FontSize="18"
-                         FontWeight="SemiBold"
-                         Margin="0,0,0,8"/>
+              <!-- Wochen-Header -->
+              <Border BorderThickness="0,0,0,1"
+                      BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                      Padding="0,0,0,6"
+                      Margin="0,0,0,8">
+                <TextBlock Text="{Binding WochenHeaderText}"
+                           FontSize="16"
+                           FontWeight="SemiBold"/>
+              </Border>
 
-              <!-- Übungen für diesen Tag -->
-              <ItemsControl ItemsSource="{x:Bind Uebungen, Mode=OneWay}">
+              <!-- Tage dieser Woche -->
+              <ItemsControl ItemsSource="{Binding Tage}">
                 <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="models:Uebung">
+                  <DataTemplate DataType="models:Tag">
                     <StackPanel Margin="0,0,0,12">
+                      <TextBlock Text="{Binding Name}"
+                                 FontSize="15"
+                                 FontWeight="Bold"
+                                 Margin="0,0,0,6"/>
 
-                      <Grid>
-                        <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="*"/>
-                          <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                          <TextBlock Text="{x:Bind Name, Mode=OneWay}"
-                                     FontSize="16"
-                                     FontWeight="Bold"/>
-                          <TextBlock Text="{x:Bind Muskelgruppe, Mode=OneWay}"
-                                     Foreground="Gray"/>
-                        </StackPanel>
-                        <Button Content="+"
-                                Grid.Column="1"
-                                Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
-                                CommandParameter="{x:Bind}"/>
-                      </Grid>
-
-                      <!-- Sätze zu dieser Übung -->
-                      <ItemsControl ItemsSource="{x:Bind Saetze, Mode=OneWay}"
-                                    Margin="0,10">
+                      <!-- Übungen -->
+                      <ItemsControl ItemsSource="{Binding Uebungen}">
                         <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="models:Satz">
-                            <Grid Margin="0,5">
-                              <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="2*"/>
-                              </Grid.ColumnDefinitions>
-                              <TextBlock Text="{x:Bind Nummer}"
-                                         Margin="0,0,10,0"/>
-                              <TextBox Text="{x:Bind Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Grid.Column="1"
-                                       PlaceholderText="KG"
-                                       Margin="5,0"/>
-                              <TextBox Text="{x:Bind Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Grid.Column="2"
-                                       PlaceholderText="Wdh"
-                                       Margin="5,0"/>
-                              <TextBox Text="{x:Bind Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Grid.Column="3"
-                                       PlaceholderText="Kommentar"
-                                       Margin="5,0"
-                                       FontSize="12"
-                                       TextWrapping="Wrap"
-                                       AcceptsReturn="True"
-                                       VerticalAlignment="Top"
-                                       MinHeight="40"
-                                       MaxHeight="100"/>
-                            </Grid>
+                          <DataTemplate DataType="models:Uebung">
+                            <StackPanel Margin="0,0,0,10">
+
+                              <!-- Übungskopf + Add-Satz -->
+                              <Grid>
+                                <Grid.ColumnDefinitions>
+                                  <ColumnDefinition Width="*"/>
+                                  <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                  <TextBlock Text="{Binding Name}"
+                                             FontWeight="SemiBold"/>
+                                  <TextBlock Text="{Binding Muskelgruppe}"
+                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="1"
+                                        Content="+"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
+                                        CommandParameter="{Binding}"/>
+                              </Grid>
+
+                              <!-- Sätze -->
+                              <ItemsControl ItemsSource="{Binding Saetze}"
+                                            Margin="0,6,0,0">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate DataType="models:Satz">
+                                    <Grid Margin="0,4,0,4">
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <!-- # -->
+                                        <ColumnDefinition Width="*"/>
+                                        <!-- Gewicht -->
+                                        <ColumnDefinition Width="*"/>
+                                        <!-- Wdh -->
+                                        <ColumnDefinition Width="2*"/>
+                                        <!-- Kommentar -->
+                                      </Grid.ColumnDefinitions>
+
+                                      <TextBlock Grid.Column="0"
+                                                 Text="{Binding Nummer}"
+                                                 Margin="0,0,10,0"
+                                                 VerticalAlignment="Center"/>
+
+                                      <controls:NumberBox Grid.Column="1"
+                                                          Value="{Binding Gewicht, Mode=TwoWay}"
+                                                          PlaceholderText="Kg"
+                                                          Minimum="0"
+                                                          SmallChange="2"
+                                                          LargeChange="5"
+                                                          Margin="5,0"/>
+
+                                      <controls:NumberBox Grid.Column="2"
+                                                          Value="{Binding Wiederholungen, Mode=TwoWay}"
+                                                          PlaceholderText="Wdh"
+                                                          Minimum="0"
+                                                          Maximum="1000"
+                                                          SmallChange="1"
+                                                          LargeChange="5"
+                                                          Margin="5,0"/>
+
+                                      <TextBox Grid.Column="3"
+                                               Text="{Binding Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                               PlaceholderText="Kommentar"
+                                               TextWrapping="Wrap"
+                                               AcceptsReturn="True"
+                                               MinHeight="36"
+                                               MaxHeight="100"
+                                               Margin="5,0"/>
+                                    </Grid>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+
+                            </StackPanel>
                           </DataTemplate>
                         </ItemsControl.ItemTemplate>
                       </ItemsControl>
@@ -126,23 +180,22 @@
       </ItemsControl>
     </ScrollViewer>
 
-    <!-- TabBar ganz unten -->
+    <!-- Bottom-Navigation (optional) -->
     <utu:TabBar Grid.Row="3"
-                Style="{StaticResource BotoomTabBarStyle}">
+        Margin="0,8,0,0">
       <utu:TabBar.Items>
         <utu:TabBarItem Content="HOME">
           <utu:TabBarItem.Icon>
-            <FontIcon Glyph="{StaticResource HomeIcon}"/>
+            <FontIcon Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
         <utu:TabBarItem Content="Pläne"
                         Command="{Binding NavigateToPlaeneCommand}">
           <utu:TabBarItem.Icon>
-            <FontIcon Glyph="{StaticResource SupportIcon}"/>
+            <FontIcon Glyph="&#xE12B;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
       </utu:TabBar.Items>
     </utu:TabBar>
-
   </Grid>
 </Page>

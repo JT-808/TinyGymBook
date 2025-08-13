@@ -42,9 +42,17 @@ public class SqliteTrainingsplanService : IDataService
             await _db.CreateTableAsync<Tag>();
             await _db.CreateTableAsync<Satz>();
 
-            // Index (optional, schneller bei Abfragen):
+            // Spalten nachrüsten (schadet nicht, wenn sie schon da sind)
+            try { await _db.ExecuteAsync("ALTER TABLE Satz ADD COLUMN Jahr INTEGER DEFAULT 0"); } catch { }
+            try { await _db.ExecuteAsync("ALTER TABLE Satz ADD COLUMN KalenderWoche INTEGER DEFAULT 0"); } catch { }
+
+            await _db.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_uebung_tag ON Uebung(TagId)");
+            await _db.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_tag_plan ON Tag(Trainingsplan_Id)");
+
             await _db.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_satz_uebung_nummer ON Satz(Uebung_Id, Nummer)");
+            await _db.ExecuteAsync("CREATE INDEX IF NOT EXISTS idx_satz_week ON Satz(Jahr, KalenderWoche, Uebung_Id)");
         }
+
         catch (SQLiteException ex)
         {
             Debug.WriteLine("[SQLite][InitAsync] " + ex.Message);
@@ -219,7 +227,82 @@ public class SqliteTrainingsplanService : IDataService
     }
 
 
+    public async Task<List<Satz>> LadeSaetzeFuerUebungInWocheAsync(int uebungId, int jahr, int kw)
+    {
+        return await _db.Table<Satz>()
+            .Where(s => s.Uebung_Id == uebungId && s.Jahr == jahr && s.KalenderWoche == kw)
+            .OrderBy(s => s.Nummer)
+            .ToListAsync();
+    }
 
+    public async Task SpeichereSaetzeFuerUebungInWocheAsync(int uebungId, int jahr, int kw, IEnumerable<Satz> saetze)
+    {
+        // Nur Sätze der *gleichen Woche* betrachten
+        var bestehende = await _db.Table<Satz>()
+                                  .Where(s => s.Uebung_Id == uebungId && s.Jahr == jahr && s.KalenderWoche == kw)
+                                  .ToListAsync();
+
+        var aktuelleIds = saetze.Where(s => s.Satz_Id != 0).Select(s => s.Satz_Id).ToHashSet();
+
+        // Löschen, was in *dieser Woche* entfernt wurde
+        foreach (var alt in bestehende)
+            if (!aktuelleIds.Contains(alt.Satz_Id))
+                await _db.DeleteAsync(alt);
+
+        // Einfügen/Aktualisieren – dabei Jahr/KW konsistent setzen
+        foreach (var satz in saetze)
+        {
+            satz.Uebung_Id = uebungId;
+            satz.Jahr = jahr;
+            satz.KalenderWoche = kw;
+
+            if (satz.Satz_Id == 0) await _db.InsertAsync(satz);
+            else await _db.UpdateAsync(satz);
+        }
+    }
+
+
+
+    public async Task<List<Satz>> LadeSaetzeInWocheAsync(int jahr, int kw)
+    {
+        return await _db.Table<Satz>()
+            .Where(s => s.Jahr == jahr && s.KalenderWoche == kw)
+            .OrderBy(s => s.Uebung_Id).ThenBy(s => s.Nummer)
+            .ToListAsync();
+    }
+
+
+
+
+    public async Task<List<Uebung>> LadeUebungenByIdsAsync(IEnumerable<int> uebungIds)
+    {
+        var ids = uebungIds?.Distinct().ToList() ?? [];
+        if (ids.Count == 0) return new List<Uebung>();
+
+        var qm = string.Join(",", ids.Select(_ => "?"));
+        var sql = $"SELECT * FROM Uebung WHERE Uebung_Id IN ({qm})";
+        return await _db.QueryAsync<Uebung>(sql, ids.Cast<object>().ToArray());
+    }
+
+    public async Task<List<Tag>> LadeTagsByIdsAsync(IEnumerable<int> tagIds)
+    {
+        var ids = tagIds?.Distinct().ToList() ?? [];
+        if (ids.Count == 0) return new List<Tag>();
+
+        var qm = string.Join(",", ids.Select(_ => "?"));
+        var sql = $"SELECT * FROM Tag WHERE TagId IN ({qm})";
+        return await _db.QueryAsync<Tag>(sql, ids.Cast<object>().ToArray());
+    }
+
+    public async Task<List<Trainingsplan>> LadePlaeneByIdsAsync(IEnumerable<int> planIds)
+    {
+        var ids = planIds?.Distinct().ToList() ?? [];
+        if (ids.Count == 0) return new List<Trainingsplan>();
+
+        var qm = string.Join(",", ids.Select(_ => "?"));
+        var sql = $"SELECT * FROM Trainingsplan WHERE Trainingsplan_Id IN ({qm})";
+        return await _db.QueryAsync<Trainingsplan>(sql, ids.Cast<object>().ToArray());
+    }
 
 
 

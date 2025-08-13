@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Tiny_GymBook.Models;
 using Tiny_GymBook.Services.DataService;
+using System.Linq;
 
 namespace Tiny_GymBook.Presentation;
 
@@ -23,13 +24,22 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<Trainingsplan> AllePlaene { get; } = new();
     public ObservableCollection<Tag> AlleTage { get; } = new(); // HIER: Alle Tage + Übungen + Sätze!
 
+    public ObservableCollection<Trainingswoche> Wochen { get; } = new();
+
     public MainViewModel(INavigator navigator, IDataService trainingsplanService)
     {
         _navigator = navigator;
         _trainingsplanDBService = trainingsplanService;
-        InitializeWeek();
-        _ = LadeAllePlaeneAsync();
+
+        _ = _trainingsplanDBService.InitAsync();
+
+        InitializeWeek();            // 1) Woche bestimmen
+        _ = LadeAllePlaeneAsync();   // 2) Pläne laden -> setzt AktiverPlan
+
+        // 3) Initial Wochen laden (OnAktiverPlanChanged ruft es eh nochmal – doppelt ist ok, aber optional)
+        _ = LoadInitialWeeksAsync();
     }
+
 
     private async Task LadeAllePlaeneAsync()
     {
@@ -45,81 +55,212 @@ public partial class MainViewModel : ObservableObject
     private void InitializeWeek()
     {
         var heute = DateTime.Today;
+        int offset = ((int)heute.DayOfWeek + 6) % 7; // Mo=0, So=6
+        var montag = heute.AddDays(-offset);
         var kw = System.Globalization.ISOWeek.GetWeekOfYear(heute);
-        var montag = heute.AddDays(-(int)heute.DayOfWeek + (int)DayOfWeek.Monday);
         AktuelleWoche = new Trainingswoche(kw, heute.Year, montag);
     }
 
     // Immer wenn sich der aktive Plan ändert, lade die Tage/Übungen/Sätze neu!
     partial void OnAktiverPlanChanged(Trainingsplan? value)
     {
-        _ = LadeTageMitUebungenUndEintraegenAsync();
+        _ = LoadInitialWeeksAsync();
     }
 
-    private async Task LadeTageMitUebungenUndEintraegenAsync()
-    {
-        if (AktiverPlan == null)
-        {
-            AlleTage.Clear();
-            return;
-        }
 
-        var tage = await _trainingsplanDBService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
-        var uebungen = await _trainingsplanDBService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
 
-        AlleTage.Clear();
-
-        foreach (var tag in tage)
-        {
-            tag.Uebungen.Clear();
-
-            var uebungenFuerTag = uebungen.Where(u => u.TagId == tag.TagId);
-
-            foreach (var uebung in uebungenFuerTag)
-            {
-                // Sätze direkt für die Übung laden (Optional: Wochen-/Datumsfilter hinzufügen)
-                var saetze = await _trainingsplanDBService.LadeSaetzeFuerUebungAsync(uebung.Uebung_Id /*, filter*/);
-                uebung.Saetze = new ObservableCollection<Satz>(saetze);
-
-                tag.Uebungen.Add(uebung);
-            }
-
-            AlleTage.Add(tag);
-        }
-    }
 
     [RelayCommand]
-    public void AddSatz(Uebung uebung)
+    public async Task AddSatzAsync(Uebung uebung)
     {
-        if (uebung == null)
-            return;
+        if (uebung == null) return;
 
-        int neueNummer = uebung.Saetze.Count + 1;
-        uebung.Saetze.Add(new Satz
+        // Finde die Woche, in deren Struktur diese Uebung-Instanz steckt
+        var zielWoche = Wochen.FirstOrDefault(w =>
+            w.Tage.Any(t => t.Uebungen.Contains(uebung)));
+        if (zielWoche == null) return;
+
+        // Max Nummer der *Zielwoche*
+        var bestehende = await _trainingsplanDBService
+            .LadeSaetzeFuerUebungInWocheAsync(uebung.Uebung_Id, zielWoche.Jahr, zielWoche.KalenderWoche);
+        int neueNummer = (bestehende.Count == 0) ? 1 : bestehende.Max(s => s.Nummer) + 1;
+
+        var s = new Satz
         {
             Nummer = neueNummer,
-            Uebung_Id = uebung.Uebung_Id,  // <-- Stelle sicher, dass Satz das FK-Feld hat!
+            Uebung_Id = uebung.Uebung_Id,
             Gewicht = 0,
             Wiederholungen = 0,
             Kommentar = string.Empty,
-            Training_Date = DateTime.Today.ToString("yyyy-MM-dd") // falls im Satz vorhanden
-        });
+            Training_Date = DateTime.Today.ToString("yyyy-MM-dd"),
+            Jahr = zielWoche.Jahr,
+            KalenderWoche = zielWoche.KalenderWoche
+        };
+
+        uebung.Saetze.Add(s);
+        await _trainingsplanDBService.SpeichereSaetzeFuerUebungInWocheAsync(
+            uebung.Uebung_Id, zielWoche.Jahr, zielWoche.KalenderWoche, uebung.Saetze);
     }
 
     [RelayCommand]
     private async Task NavigateToPlaeneAsync()
     {
-        // Speichere alle Übungen + deren Sätze
-        foreach (var tag in AlleTage)
-        {
-            foreach (var uebung in tag.Uebungen)
-            {
-                await _trainingsplanDBService.SpeichereUebung(uebung);
-                await _trainingsplanDBService.SpeichereSaetzeFuerUebungAsync(uebung.Uebung_Id, uebung.Saetze);
-            }
-        }
+        foreach (var woche in Wochen)
+            foreach (var tag in woche.Tage)
+                foreach (var uebung in tag.Uebungen)
+                    await _trainingsplanDBService.SpeichereSaetzeFuerUebungInWocheAsync(
+                        uebung.Uebung_Id, woche.Jahr, woche.KalenderWoche, uebung.Saetze);
 
-        await LadeTageMitUebungenUndEintraegenAsync();
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
     }
+
+
+
+
+    [RelayCommand]
+    public async Task LoadInitialWeeksAsync()
+    {
+        Wochen.Clear();
+        if (AktuelleWoche is null) return;
+
+        var woche = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
+        if (woche.Tage.Any())        // nur wenn Inhalte vorhanden
+            Wochen.Add(woche);
+    }
+
+    [RelayCommand]
+    public async Task LoadOlderWeekAsync()
+    {
+        if (Wochen.Count == 0)
+        {
+            if (AktuelleWoche is null) return;
+            var w0 = await BuildWeekAsync(AktuelleWoche.Jahr, AktuelleWoche.KalenderWoche);
+            if (w0.Tage.Any()) Wochen.Add(w0);
+            return;
+        }
+
+        var top = Wochen.First();
+        var prevMonday = System.Globalization.ISOWeek
+            .ToDateTime(top.Jahr, top.KalenderWoche, DayOfWeek.Monday)
+            .AddDays(-7);
+
+        var pj = System.Globalization.ISOWeek.GetYear(prevMonday);
+        var pkw = System.Globalization.ISOWeek.GetWeekOfYear(prevMonday);
+
+        // Optional: Duplikate vermeiden, falls schon geladen
+        if (Wochen.Any(w => w.Jahr == pj && w.KalenderWoche == pkw))
+            return;
+
+        var woche = await BuildWeekAsync(pj, pkw);
+        if (woche.Tage.Any())
+            Wochen.Insert(0, woche);
+    }
+
+
+    private async Task<Trainingswoche> BuildWeekAsync(int jahr, int kw)
+    {
+        var montag = System.Globalization.ISOWeek.ToDateTime(jahr, kw, DayOfWeek.Monday);
+        var woche = new Trainingswoche(kw, jahr, montag);
+
+        // 1) Historische Sätze dieser Woche (planübergreifend)
+        var saetzeWoche = await _trainingsplanDBService.LadeSaetzeInWocheAsync(jahr, kw);
+
+        if (saetzeWoche.Count == 0)
+        {
+            // Fallback: aktive Planstruktur anzeigen (ohne Sätze)
+            if (AktiverPlan is null) return woche;
+
+            var tage = await _trainingsplanDBService.LadeTageAsync(AktiverPlan.Trainingsplan_Id);
+            var uebungenPlan = await _trainingsplanDBService.LadeUebungenZuPlanAsync(AktiverPlan.Trainingsplan_Id);
+
+            foreach (var t in tage.OrderBy(t => t.Reihenfolge))
+            {
+                var tagVm = new Tag
+                {
+                    Name = t.Name,
+                    Reihenfolge = t.Reihenfolge,
+                    Trainingsplan_Id = t.Trainingsplan_Id
+                };
+
+                foreach (var u in uebungenPlan.Where(u => u.TagId == t.TagId).OrderBy(u => u.Name))
+                {
+                    tagVm.Uebungen.Add(new Uebung
+                    {
+                        Uebung_Id = u.Uebung_Id,
+                        Name = u.Name,
+                        Muskelgruppe = u.Muskelgruppe,
+                        TagId = u.TagId,
+                        Trainingsplan_Id = u.Trainingsplan_Id,
+                        Saetze = new ObservableCollection<Satz>()
+                    });
+                }
+
+                woche.Tage.Add(tagVm);
+            }
+
+            return woche;
+        }
+
+        // --- Bestehende Logik für Wochen mit Sätzen (planübergreifend) ---
+        var uebungIds = saetzeWoche.Select(s => s.Uebung_Id).Distinct().ToList();
+        var uebungen = await _trainingsplanDBService.LadeUebungenByIdsAsync(uebungIds);
+        var uDict = uebungen.ToDictionary(u => u.Uebung_Id);
+
+        var tagIds = uebungen.Select(u => u.TagId).Distinct().ToList();
+        var tags = await _trainingsplanDBService.LadeTagsByIdsAsync(tagIds);
+        var tDict = tags.ToDictionary(t => t.TagId);
+
+        var planIds = tags.Select(t => t.Trainingsplan_Id).Distinct().ToList();
+        var plaene = await _trainingsplanDBService.LadePlaeneByIdsAsync(planIds);
+        var pDict = plaene.ToDictionary(p => p.Trainingsplan_Id);
+
+        var saetzeByUebung = saetzeWoche.GroupBy(s => s.Uebung_Id);
+        var uebungenByTag = new Dictionary<int, List<Uebung>>();
+
+        foreach (var grp in saetzeByUebung)
+        {
+            if (!uDict.TryGetValue(grp.Key, out var uMeta)) continue;
+            if (!tDict.TryGetValue(uMeta.TagId, out var tagMeta)) continue;
+
+            var uVm = new Uebung
+            {
+                Uebung_Id = uMeta.Uebung_Id,
+                Name = uMeta.Name,
+                Muskelgruppe = uMeta.Muskelgruppe,
+                TagId = uMeta.TagId,
+                Trainingsplan_Id = uMeta.Trainingsplan_Id,
+                Saetze = new ObservableCollection<Satz>(grp.OrderBy(s => s.Nummer))
+            };
+
+            if (!uebungenByTag.TryGetValue(uMeta.TagId, out var list))
+                uebungenByTag[uMeta.TagId] = list = new List<Uebung>();
+
+            list.Add(uVm);
+        }
+
+        foreach (var tagId in uebungenByTag.Keys.OrderBy(id => tDict[id].Reihenfolge))
+        {
+            var tagMeta = tDict[tagId];
+            var planName = pDict.TryGetValue(tagMeta.Trainingsplan_Id, out var plan)
+                ? plan.Name
+                : $"Plan {tagMeta.Trainingsplan_Id}";
+
+            var tagVm = new Tag
+            {
+                Name = $"{planName} • {tagMeta.Name}",
+                Reihenfolge = tagMeta.Reihenfolge,
+                Trainingsplan_Id = tagMeta.Trainingsplan_Id
+            };
+
+            foreach (var u in uebungenByTag[tagId].OrderBy(x => x.Name))
+                tagVm.Uebungen.Add(u);
+
+            woche.Tage.Add(tagVm);
+        }
+
+        return woche;
+    }
+
+
+
 }

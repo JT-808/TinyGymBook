@@ -8,12 +8,14 @@ namespace Tiny_GymBook.Models;
 [Bindable]
 public class Trainingswoche
 {
-
     public string WochenHeaderText { get; }
     public int KalenderWoche { get; }
     public int Jahr { get; }
     public DateTime StartDatum { get; } // Montag
     public DateTime EndDatum { get; }   // Sonntag
+
+    // NEU: Die Tage dieser Woche
+    public ObservableCollection<Tag> Tage { get; } = new();
 
     public Trainingswoche(int kalenderWoche, int jahr, DateTime startDatum)
     {
@@ -28,5 +30,4 @@ public class Trainingswoche
     {
         return $"KW {KalenderWoche} | {StartDatum:dd.MM.yyyy} - {EndDatum:dd.MM.yyyy}";
     }
-
 }

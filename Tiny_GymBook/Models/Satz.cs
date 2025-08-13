@@ -23,4 +23,9 @@ public class Satz
 
     [Indexed]
     public int Uebung_Id { get; set; }   // FK auf Uebung
+
+
+    // NEU: Woche markieren
+    [Indexed] public int Jahr { get; set; }
+    [Indexed] public int KalenderWoche { get; set; }
 }
