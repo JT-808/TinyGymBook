@@ -1,7 +1,26 @@
-# Getting Started
+export ANDROID_SDK_ROOT=/home/woodz/Android/Sdk
+export PATH=$PATH:$ANDROID_SDK_ROOT/emulator
+export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
 
-Welcome to the Uno Platform!
 
-To discover how to get started with your new app: https://aka.platform.uno/get-started
 
-For more information on how to use the Uno.Sdk or upgrade Uno Platform packages in your solution: https://aka.platform.uno/using-uno-sdk
+emulator -avd Pixel_8
+
+
+
+neue namen
+
+Liftlog
+GymLog
+
+
+dotnet clean \
+&& rm -rf bin obj \
+&& dotnet build
+
+
+
+dotnet run --project Tiny_GymBook/Tiny_GymBook.csproj --framework net9.0-desktop
+
+
+
