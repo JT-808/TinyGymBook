@@ -60,10 +60,9 @@ public partial class SecondViewModel : ObservableObject
     private async Task DeletePlanAsync(Trainingsplan plan)
     {
         if (plan is null) return;
-        await _trainingsplanDBService.LoescheTrainingsplanAsync(plan);
+        await _trainingsplanDBService.LoescheTrainingsplanKomplettAsync(plan.Trainingsplan_Id);
         await LadeTrainingsplaeneAsync();
     }
-
     [RelayCommand]
     private async Task OpenPlanAsync(Trainingsplan plan)
         => await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, data: plan);
@@ -93,7 +92,7 @@ public partial class SecondViewModel : ObservableObject
         }
     }
 
-    // ===== Import bleibt wie gehabt =====
+
     [RelayCommand]
     private async Task ImportFromJsonAsync()
     {
@@ -115,10 +114,7 @@ public partial class SecondViewModel : ObservableObject
                 path = Uri.UnescapeDataString(path);
                 stream = System.IO.File.OpenRead(path);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[IMPORT] File.OpenRead-Fallback nötig: {ex.Message}");
-            }
+            catch { /* Fallback unten */ }
         }
 
         if (stream is null)
@@ -132,27 +128,9 @@ public partial class SecondViewModel : ObservableObject
             var plaene = (await _trainingsplanIOService.LadeTrainingsplaeneAsync(stream)).ToList();
             if (plaene.Count == 0) return;
 
-            foreach (var p in plaene)
-            {
-                p.Trainingsplan_Id = 0;
-                foreach (var u in p.Uebungen ?? Enumerable.Empty<Uebung>())
-                {
-                    u.Uebung_Id = 0; u.Trainingsplan_Id = 0; u.TagId = 0;
-                }
-
-                await _trainingsplanDBService.SpeichereTrainingsplanAsync(p, new List<Tag>());
-
-                var tage = await _trainingsplanDBService.LadeTageAsync(p.Trainingsplan_Id);
-                var ersterTag = tage.OrderBy(t => t.Reihenfolge).FirstOrDefault();
-                if (ersterTag is null) continue;
-
-                foreach (var u in p.Uebungen ?? Enumerable.Empty<Uebung>())
-                {
-                    u.Trainingsplan_Id = p.Trainingsplan_Id;
-                    u.TagId = ersterTag.TagId;
-                    await _trainingsplanDBService.SpeichereUebung(u);
-                }
-            }
+            // ✨ Alles Weitere macht der DataService in einer Transaktion
+            var inserted = await _trainingsplanDBService.ImportTrainingsplaeneAsync(plaene);
+            Debug.WriteLine($"[IMPORT] {inserted} Plan/Pläne importiert.");
         }
 
         await LadeTrainingsplaeneAsync();

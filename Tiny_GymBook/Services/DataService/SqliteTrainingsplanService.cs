@@ -305,6 +305,81 @@ public class SqliteTrainingsplanService : IDataService
     }
 
 
+    public async Task<int> ImportTrainingsplaeneAsync(IEnumerable<Trainingsplan> plaene)
+    {
+        if (plaene is null) return 0;
+        var list = plaene.ToList();
+        var imported = 0;
 
+        await _db.RunInTransactionAsync(conn =>
+        {
+            foreach (var p in list)
+            {
+                // IDs resetten
+                p.Trainingsplan_Id = 0;
+                foreach (var u in p.Uebungen ?? Enumerable.Empty<Uebung>())
+                {
+                    u.Uebung_Id = 0;
+                    u.Trainingsplan_Id = 0;
+                    u.TagId = 0;
+                }
+
+                // Plan anlegen
+                conn.Insert(p);
+
+                // Default-Tag anlegen (immer – konsistent fürs Import-Szenario)
+                var defaultTag = new Tag
+                {
+                    Name = "Tag 1",
+                    Reihenfolge = 1,
+                    Trainingsplan_Id = p.Trainingsplan_Id
+                };
+                conn.Insert(defaultTag);
+
+                // Übungen dem Plan + Default-Tag zuordnen
+                foreach (var u in p.Uebungen ?? Enumerable.Empty<Uebung>())
+                {
+                    u.Trainingsplan_Id = p.Trainingsplan_Id;
+                    u.TagId = defaultTag.TagId;
+                    conn.Insert(u);
+                }
+
+                imported++;
+            }
+        });
+
+        return imported;
+    }
+
+    public async Task LoescheTrainingsplanKomplettAsync(int planId)
+    {
+        await _db.RunInTransactionAsync(conn =>
+        {
+            // 1) Sätze zu Übungen des Plans löschen
+            var uebungen = conn.Table<Uebung>()
+                               .Where(u => u.Trainingsplan_Id == planId)
+                               .ToList();
+            foreach (var u in uebungen)
+            {
+                conn.Execute("DELETE FROM Satz WHERE Uebung_Id = ?", u.Uebung_Id);
+            }
+
+            // 2) Übungen löschen
+            foreach (var u in uebungen)
+                conn.Delete(u);
+
+            // 3) Tags löschen
+            var tags = conn.Table<Tag>()
+                           .Where(t => t.Trainingsplan_Id == planId)
+                           .ToList();
+            foreach (var t in tags)
+                conn.Delete(t);
+
+            // 4) Plan löschen
+            var plan = conn.Find<Trainingsplan>(planId);
+            if (plan is not null)
+                conn.Delete(plan);
+        });
+    }
 
 }
