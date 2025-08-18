@@ -4,13 +4,14 @@ using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.Json;
 using Tiny_GymBook.Models;
-using Uno.Extensions.Navigation;
 using Tiny_GymBook.Services.DataService;
 using Tiny_GymBook.Services.TrainingsplanIO;
+using Uno.Extensions.Navigation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using System.Text.Json;
+using System.IO;
 
 namespace Tiny_GymBook.Presentation;
 
@@ -24,17 +25,7 @@ public partial class SecondViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<Trainingsplan> trainingsplaene = new();
     [ObservableProperty] private Trainingsplan? selectedPlan;
 
-    // gleiche JSON-Optionen wie im Service
-    private static readonly JsonSerializerOptions _jsonOptionen = new()
-    {
-        WriteIndented = true,
-        PropertyNameCaseInsensitive = true
-    };
-
-    public SecondViewModel(
-        INavigator navigator,
-        IDataService trainingsplanDBService,
-        ITrainingsplanIOService trainingsplanIOService)
+    public SecondViewModel(INavigator navigator, IDataService trainingsplanDBService, ITrainingsplanIOService trainingsplanIOService)
     {
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
         _trainingsplanDBService = trainingsplanDBService ?? throw new ArgumentNullException(nameof(trainingsplanDBService));
@@ -51,10 +42,7 @@ public partial class SecondViewModel : ObservableObject
             Trainingsplaene.Add(plan);
     }
 
-
-
-    //===================BUTTONS==================
-
+    // Buttons
 
     [RelayCommand]
     private async Task AddPlanAsync()
@@ -80,7 +68,7 @@ public partial class SecondViewModel : ObservableObject
     private async Task OpenPlanAsync(Trainingsplan plan)
         => await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, data: plan);
 
-    // ===== Export über FolderPicker (Linux & Android) =====
+    // ===== Export: FolderPicker (Linux/Android) -> Service schreibt Datei =====
     [RelayCommand]
     private async Task ExportPlanAsync(Trainingsplan plan)
     {
@@ -88,11 +76,7 @@ public partial class SecondViewModel : ObservableObject
 
         try
         {
-            // 1) Ordner wählen
             var folderPicker = new FolderPicker();
-            // Auf Linux/Android ist keine Fenster-Initialisierung nötig.
-            // (Für Windows wäre InitializeWithWindow erforderlich.)
-
             var folder = await folderPicker.PickSingleFolderAsync();
             if (folder is null)
             {
@@ -100,14 +84,7 @@ public partial class SecondViewModel : ObservableObject
                 return;
             }
 
-            // 2) Datei im gewählten Ordner erzeugen
-            var fileName = $"{Sanitize(plan.Name)}.json";
-            var file = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-
-            // 3) Plan serialisieren & schreiben
-            var json = JsonSerializer.Serialize(plan, _jsonOptionen);
-            await FileIO.WriteTextAsync(file, json);
-
+            var file = await _trainingsplanIOService.SaveToFolderAsync(folder, plan, overwrite: true);
             Debug.WriteLine($"[EXPORT] Gespeichert: {file.Path}");
         }
         catch (Exception ex)
@@ -116,22 +93,19 @@ public partial class SecondViewModel : ObservableObject
         }
     }
 
-
+    // ===== Import bleibt wie gehabt =====
     [RelayCommand]
     private async Task ImportFromJsonAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-        };
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
         picker.FileTypeFilter.Add(".json");
 
         var file = await picker.PickSingleFileAsync();
         if (file is null) return;
 
         Stream? stream = null;
-
         var path = file.Path;
+
         if (!string.IsNullOrEmpty(path))
         {
             try
@@ -187,11 +161,4 @@ public partial class SecondViewModel : ObservableObject
     [RelayCommand]
     private async Task GoBackAsync()
         => await _navigator.NavigateBackAsync(this);
-
-    // ===== Helpers =====
-    private static string Sanitize(string name)
-    {
-        var invalid = System.IO.Path.GetInvalidFileNameChars();
-        return string.Join("_", name.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).Trim('_');
-    }
 }

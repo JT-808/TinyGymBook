@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Tiny_GymBook.Models;
+using Windows.Storage; // für StorageFolder/StorageFile
 
 namespace Tiny_GymBook.Services.TrainingsplanIO;
 
@@ -23,12 +24,10 @@ public class JsonTrainingsplanService : ITrainingsplanIOService
             "Tiny_GymBook");
 
         Directory.CreateDirectory(basis);
-
         _exportOrdner = Path.Combine(basis, "Exports");
         Directory.CreateDirectory(_exportOrdner);
     }
 
-    // Lädt alle Pläne aus allen *.json-Dateien im Export-Ordner
     public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync()
     {
         if (!Directory.Exists(_exportOrdner))
@@ -42,7 +41,6 @@ public class JsonTrainingsplanService : ITrainingsplanIOService
             {
                 var jsonText = await File.ReadAllTextAsync(file);
 
-                // Zuerst versuchen: Liste von Plänen
                 var list = JsonSerializer.Deserialize<List<Trainingsplan>>(jsonText, _jsonOptionen);
                 if (list is { Count: > 0 })
                 {
@@ -50,62 +48,61 @@ public class JsonTrainingsplanService : ITrainingsplanIOService
                     continue;
                 }
 
-                // Fallback: einzelner Plan
                 var single = JsonSerializer.Deserialize<Trainingsplan>(jsonText, _jsonOptionen);
                 if (single is not null)
                     result.Add(single);
             }
             catch
             {
-                // Datei überspringen, wenn sie nicht lesbar ist
+                // Datei überspringen
             }
         }
 
         return result;
     }
 
-
-
     public async Task<IEnumerable<Trainingsplan>> LadeTrainingsplaeneAsync(Stream stream)
     {
-        // 1) Versuche: Liste von Plänen
         try
         {
             if (stream.CanSeek) stream.Position = 0;
             var list = await JsonSerializer.DeserializeAsync<List<Trainingsplan>>(stream, _jsonOptionen);
-            if (list is { Count: > 0 })
-                return list;
+            if (list is { Count: > 0 }) return list;
         }
-        catch (JsonException)
-        {
-            // ignorieren, gleich Einzelobjekt versuchen
-        }
+        catch (JsonException) { /* fallback */ }
 
-        // 2) Fallback: einzelner Plan
         try
         {
             if (stream.CanSeek) stream.Position = 0;
             var single = await JsonSerializer.DeserializeAsync<Trainingsplan>(stream, _jsonOptionen);
-            if (single is not null)
-                return new[] { single };
+            if (single is not null) return new[] { single };
         }
-        catch (JsonException)
-        {
-            // ignorieren
-        }
+        catch (JsonException) { /* ignore */ }
 
         return Array.Empty<Trainingsplan>();
     }
 
-    // Schreibt EINEN Plan in eine eigene Datei (Planname.json)
+    // Standard-Export in Service-Ordner
     public async Task SpeichereTrainingsplanAsync(Trainingsplan plan)
     {
-        var dateiName = $"{Sanitize(plan.Name)}.json";
-        var zielDatei = Path.Combine(_exportOrdner, dateiName);
+        var zielDatei = Path.Combine(_exportOrdner, BuildFileName(plan));
+        await File.WriteAllTextAsync(zielDatei, Serialize(plan));
+    }
 
-        // Einzelobjekt speichern (keine Liste mit 1 Element)
-        var json = JsonSerializer.Serialize(plan, _jsonOptionen);
-        await File.WriteAllTextAsync(zielDatei, json);
+    // ===== NEU: Helfer & Export in gewählten Ordner =====
+
+    public string BuildFileName(Trainingsplan plan) => $"{Sanitize(plan.Name)}.json";
+
+    public string Serialize(Trainingsplan plan) => JsonSerializer.Serialize(plan, _jsonOptionen);
+
+    public async Task<StorageFile> SaveToFolderAsync(StorageFolder folder, Trainingsplan plan, bool overwrite = true)
+    {
+        var file = await folder.CreateFileAsync(
+            BuildFileName(plan),
+            overwrite ? CreationCollisionOption.ReplaceExisting : CreationCollisionOption.FailIfExists);
+
+        await FileIO.WriteTextAsync(file, Serialize(plan));
+        return file;
     }
 
     private static string Sanitize(string name)
