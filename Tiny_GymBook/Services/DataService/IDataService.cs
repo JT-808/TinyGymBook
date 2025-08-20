@@ -23,4 +23,7 @@ public interface IDataService
     //  NEU:
     Task<int> ImportTrainingsplaeneAsync(IEnumerable<Trainingsplan> plaene);
     Task LoescheTrainingsplanKomplettAsync(int planId);
+
+    Task SpeichereSatzAsync(Satz satz);
+    Task LoescheSatzAsync(int satzId);    // TODO
 }

@@ -382,4 +382,24 @@ public class SqliteTrainingsplanService : IDataService
         });
     }
 
+
+    public async Task SpeichereSatzAsync(Satz satz)
+    {
+        // Annahme: Uebung_Id, Jahr, KalenderWoche sind gesetzt (beim Anlegen via AddSatzAsync)
+        if (satz.Satz_Id == 0)
+            await _db.InsertAsync(satz);
+        else
+            await _db.UpdateAsync(satz);
+    }
+
+    public async Task LoescheSatzAsync(int satzId) // optional
+    {
+        var satz = await _db.FindAsync<Satz>(satzId);
+        if (satz != null)
+            await _db.DeleteAsync(satz);
+    }
+
+
+
+
 }

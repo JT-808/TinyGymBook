@@ -10,7 +10,6 @@
       x:Name="RootPage"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-
   <Grid Padding="16,12">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -36,7 +35,6 @@
                  FontWeight="Bold"
                  VerticalAlignment="Center"/>
 
-
       <StackPanel Grid.Column="1"
                   Orientation="Horizontal"
                   Spacing="8"
@@ -52,9 +50,8 @@
       </StackPanel>
     </Grid>
 
-    <!-- Ältere Woche laden -->
+    <!-- Ältere Woche laden (Text-Button lassen; IconCircleButton wäre hier unpassend) -->
     <Button Grid.Row="1"
-            Style="{StaticResource IconCircleButton}"
             Content="Ältere Woche laden"
             Margin="0,8,0,8"
             Command="{Binding LoadOlderWeekCommand}"/>
@@ -64,6 +61,12 @@
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
       <ItemsControl ItemsSource="{Binding Wochen}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
         <ItemsControl.ItemTemplate>
           <DataTemplate DataType="models:Trainingswoche">
             <StackPanel Margin="0,0,0,20">
@@ -78,102 +81,143 @@
                            FontWeight="SemiBold"/>
               </Border>
 
-              <!-- Tage dieser Woche -->
+              <!-- Tage dieser Woche (jeder Tag als „Karte“/Rahmen wie in PlanDetail) -->
               <ItemsControl ItemsSource="{Binding Tage}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="models:Tag">
-                    <StackPanel Margin="0,0,0,12">
-                      <TextBlock Text="{Binding Name}"
-                                 FontSize="15"
-                                 FontWeight="Bold"
-                                 Margin="0,0,0,6"/>
+                    <Border Margin="0,0,0,12"
+                            Padding="10"
+                            CornerRadius="8"
+                            BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                            BorderThickness="1">
+                      <StackPanel Spacing="8">
 
-                      <!-- Übungen -->
-                      <ItemsControl ItemsSource="{Binding Uebungen}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate DataType="models:Uebung">
-                            <StackPanel Margin="0,0,0,10">
+                        <!-- Tag-Name -->
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="15"
+                                   FontWeight="Bold"/>
 
-                              <!-- Übungskopf + Add-Satz -->
-                              <Grid>
-                                <Grid.ColumnDefinitions>
-                                  <ColumnDefinition Width="*"/>
-                                  <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                        <!-- Übungen -->
+                        <ItemsControl ItemsSource="{Binding Uebungen}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <StackPanel/>
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
 
-                                <StackPanel>
-                                  <TextBlock Text="{Binding Name}"
-                                             FontWeight="SemiBold"/>
-                                  <TextBlock Text="{Binding Muskelgruppe}"
-                                             Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
-                                </StackPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="models:Uebung">
+                              <StackPanel Margin="0,0,0,10">
 
-                                <Button Grid.Column="1"
-                                        Style="{StaticResource IconCircleButton}"
-                                        Content="+"
-                                        VerticalAlignment="Center"
-                                        Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
-                                        CommandParameter="{Binding}"/>
-                              </Grid>
+                                <!-- Übungskopf + Add-Satz -->
+                                <Grid ColumnSpacing="8">
+                                  <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                  </Grid.ColumnDefinitions>
 
-                              <!-- Sätze -->
-                              <ItemsControl ItemsSource="{Binding Saetze}"
-                                            Margin="0,6,0,0">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate DataType="models:Satz">
-                                    <Grid Margin="0,4,0,4">
-                                      <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <!-- # -->
-                                        <ColumnDefinition Width="*"/>
-                                        <!-- Gewicht -->
-                                        <ColumnDefinition Width="*"/>
-                                        <!-- Wdh -->
-                                        <ColumnDefinition Width="2*"/>
-                                        <!-- Kommentar -->
-                                      </Grid.ColumnDefinitions>
+                                  <StackPanel>
+                                    <TextBlock Text="{Binding Name}"
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Muskelgruppe}"
+                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
+                                  </StackPanel>
 
-                                      <TextBlock Grid.Column="0"
-                                                 Text="{Binding Nummer}"
-                                                 Margin="0,0,10,0"
-                                                 VerticalAlignment="Center"/>
+                                  <!-- IconCircleButton + (glyph) -->
+                                  <Button Grid.Column="1"
+                                          Style="{StaticResource IconCircleButton}"
+                                          Content="&#xE710;"
+                                          VerticalAlignment="Center"
+                                          Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
+                                          CommandParameter="{Binding}"/>
+                                </Grid>
 
-                                      <controls:NumberBox Grid.Column="1"
-                                                          Value="{Binding Gewicht, Mode=TwoWay}"
-                                                          PlaceholderText="Kg"
-                                                          Minimum="0"
-                                                          SmallChange="2"
-                                                          LargeChange="5"
-                                                          Margin="5,0"/>
+                                <!-- Divider -->
+                                <Border BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Margin="0,6,0,0"/>
 
-                                      <controls:NumberBox Grid.Column="2"
-                                                          Value="{Binding Wiederholungen, Mode=TwoWay}"
-                                                          PlaceholderText="Wdh"
-                                                          Minimum="0"
-                                                          Maximum="1000"
-                                                          SmallChange="1"
-                                                          LargeChange="5"
-                                                          Margin="5,0"/>
+                                <!-- Sätze -->
+                                <ItemsControl ItemsSource="{Binding Saetze}"
+                                              Margin="0,6,0,0">
+                                  <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="models:Satz">
+                                      <Grid Margin="0,4,0,4"
+                                            ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                          <ColumnDefinition Width="Auto"/>
+                                          <!-- # -->
+                                          <ColumnDefinition Width="*"/>
+                                          <!-- Gewicht -->
+                                          <ColumnDefinition Width="*"/>
+                                          <!-- Wdh -->
+                                          <ColumnDefinition Width="2*"/>
+                                          <!-- Kommentar -->
+                                          <ColumnDefinition Width="Auto"/>
+                                          <!-- Delete -->
+                                        </Grid.ColumnDefinitions>
 
-                                      <TextBox Grid.Column="3"
-                                               Text="{Binding Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                               PlaceholderText="Kommentar"
-                                               TextWrapping="Wrap"
-                                               AcceptsReturn="True"
-                                               MinHeight="36"
-                                               MaxHeight="100"
-                                               Margin="5,0"/>
-                                    </Grid>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Nummer}"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"/>
 
-                            </StackPanel>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
+                                        <controls:NumberBox Grid.Column="1"
+                                                            Value="{Binding Gewicht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            PlaceholderText="Kg"
+                                                            Minimum="0"
+                                                            SmallChange="2"
+                                                            LargeChange="5"
+                                                            Margin="5,0"
+                                                            LostFocus="OnSatzFieldLostFocus"/>
 
-                    </StackPanel>
+                                        <controls:NumberBox Grid.Column="2"
+                                                            Value="{Binding Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            PlaceholderText="Wdh"
+                                                            Minimum="0"
+                                                            Maximum="1000"
+                                                            SmallChange="1"
+                                                            LargeChange="5"
+                                                            Margin="5,0"
+                                                            LostFocus="OnSatzFieldLostFocus"/>
+
+                                        <TextBox Grid.Column="3"
+                                                 Text="{Binding Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PlaceholderText="Kommentar"
+                                                 TextWrapping="Wrap"
+                                                 AcceptsReturn="True"
+                                                 MinHeight="36"
+                                                 MaxHeight="100"
+                                                 Margin="5,0"
+                                                 LostFocus="OnSatzFieldLostFocus"/>
+
+                                        <!-- Delete-Button rechts -->
+                                        <Button Grid.Column="4"
+                                                Style="{StaticResource IconCircleButton}"
+                                                Content="&#xE74D;"
+                                                Foreground="Red"
+                                                VerticalAlignment="Center"
+                                                ToolTipService.ToolTip="Satz löschen"
+                                                Command="{Binding DataContext.DeleteSatzCommand, ElementName=RootPage}"
+                                                CommandParameter="{Binding}"/>
+                                      </Grid>
+                                    </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                              </StackPanel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                      </StackPanel>
+                    </Border>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
@@ -188,31 +232,24 @@
     <utu:TabBar Grid.Row="3"
                 Margin="0,8,0,0">
       <utu:TabBar.Items>
-
-        <!-- HOME -->
         <utu:TabBarItem x:Uid="TabHome"
                         Padding="12"
                         Command="{Binding GoBackCommand}">
-
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"
                       Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
-
-        <!-- PLÄNE -->
         <utu:TabBarItem x:Uid="TabPlans"
                         Padding="12"
                         Command="{Binding NavigateToPlaeneCommand}">
-
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"
                       Glyph="&#xE8A5;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
-
       </utu:TabBar.Items>
     </utu:TabBar>
   </Grid>

@@ -321,6 +321,35 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+
+
+
+    [RelayCommand]
+    private Task SaveSatzLeanAsync(Satz satz)
+        => (satz is null) ? Task.CompletedTask : _trainingsplanDBService.SpeichereSatzAsync(satz);
+
+
+    [RelayCommand]
+    private async Task DeleteSatzAsync(Satz satz)
+    {
+        if (satz is null) return;
+
+        var uebung = Wochen
+            .SelectMany(w => w.Tage)
+            .SelectMany(t => t.Uebungen)
+            .FirstOrDefault(u => u.Saetze.Contains(satz));
+        if (uebung is null) return;
+
+        // DB: nur wenn bereits gespeichert
+        if (satz.Satz_Id != 0)
+            await _trainingsplanDBService.LoescheSatzAsync(satz.Satz_Id);
+
+        // UI: entfernen und neu nummerieren
+        uebung.Saetze.Remove(satz);
+        for (int i = 0; i < uebung.Saetze.Count; i++)
+            uebung.Saetze[i].Nummer = i + 1;
+    }
+
     [RelayCommand]
     private async Task GoBackAsync()
     {
