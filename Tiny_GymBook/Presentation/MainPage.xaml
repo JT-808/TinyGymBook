@@ -10,6 +10,7 @@
       x:Name="RootPage"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+
   <Grid Padding="16,12">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -181,21 +182,35 @@
       </ItemsControl>
     </ScrollViewer>
 
-    <!-- Bottom-Navigation (optional) -->
+    <!-- Bottom-Navigation -->
     <utu:TabBar Grid.Row="3"
-                Margin="0,8,0,0">
+        Margin="0,8,0,0">
       <utu:TabBar.Items>
-        <utu:TabBarItem Content="HOME">
+
+        <!-- HOME -->
+        <utu:TabBarItem x:Uid="TabHome"
+                        Padding="12"
+                        Command="{Binding GoBackCommand}">
+                        
           <utu:TabBarItem.Icon>
-            <FontIcon Glyph="&#xE10F;"/>
+            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                      FontSize="24"
+                      Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
-        <utu:TabBarItem Content="Pläne"
+
+        <!-- PLÄNE -->
+        <utu:TabBarItem x:Uid="TabPlans"
+                        Padding="12"
                         Command="{Binding NavigateToPlaeneCommand}">
+                       
           <utu:TabBarItem.Icon>
-            <FontIcon Glyph="&#xE12B;"/>
+            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                      FontSize="24"
+                      Glyph="&#xE8A5;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
+
       </utu:TabBar.Items>
     </utu:TabBar>
   </Grid>

@@ -63,6 +63,7 @@ public partial class SecondViewModel : ObservableObject
         await _trainingsplanDBService.LoescheTrainingsplanKomplettAsync(plan.Trainingsplan_Id);
         await LadeTrainingsplaeneAsync();
     }
+
     [RelayCommand]
     private async Task OpenPlanAsync(Trainingsplan plan)
         => await _navigator.NavigateViewModelAsync<PlanDetailViewModel>(this, data: plan);

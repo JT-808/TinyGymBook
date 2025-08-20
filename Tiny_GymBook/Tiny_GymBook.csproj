@@ -2,6 +2,9 @@
   <PropertyGroup>
     <TargetFrameworks>net9.0-desktop</TargetFrameworks>
 
+    <!-- ;net9.0-android;-->
+
+
     <!--    net9.0-android;net9.0-browserwasm;    -->
 
     <OutputType>Exe</OutputType>
@@ -48,6 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="sqlite-net-pcl" />
+    <PackageReference Include="Uno.Fonts.Fluent" />
   </ItemGroup>
 
 </Project>

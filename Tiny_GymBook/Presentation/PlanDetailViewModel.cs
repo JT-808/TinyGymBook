@@ -60,6 +60,7 @@ public partial class PlanDetailViewModel : ObservableObject
     public async Task AddUebungToTagAsync(Tag tag)
     {
         var uebung = Uebung.CreateNew(Trainingsplan?.Trainingsplan_Id ?? 0, tag.TagId);
+        uebung.Name = string.Empty;
         await _trainingsplanDBService.SpeichereUebung(uebung);
         tag.Uebungen.Add(uebung);
     }
@@ -70,7 +71,7 @@ public partial class PlanDetailViewModel : ObservableObject
         var nextNr = Tage.Count + 1;
         var newTag = new Tag
         {
-            Name = $"Tag {nextNr}",
+            Name = string.Empty,
             Reihenfolge = nextNr,
             Trainingsplan_Id = Trainingsplan?.Trainingsplan_Id ?? 0
         };
@@ -96,4 +97,6 @@ public partial class PlanDetailViewModel : ObservableObject
             Debug.WriteLine($"[FEHLER] Back-Navigation: {ex.Message}");
         }
     }
+
+
 }

@@ -8,76 +8,160 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid x:Name="RootGrid"
-          Padding="12">
+            Padding="12"
+            RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <!-- Sticky Header -->
             <RowDefinition Height="Auto"/>
+            <!-- Debug (optional) -->
+            <RowDefinition Height="*"/>
+            <!-- Scrollbarer Inhalt -->
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBox Grid.Row="0"
-                 Text="{Binding Trainingsplan.Name, Mode=TwoWay}"
-                 FontSize="24"
-                 Header="Trainingsplan-Name"
-                 FontWeight="Bold"
-                 Margin="0,0,0,16"/>
+        <!-- ===== Sticky Header: Planname + Add Day + Save (gleiche Buttons wie unten) ===== -->
+        <Grid Grid.Row="0"
+                ColumnSpacing="8"
+                Padding="0,0,0,8"
+              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Alle Tage mit Übungen -->
-        <ScrollViewer Grid.Row="1">
+            <!-- Planname -->
+            <TextBox
+                Text="{Binding Trainingsplan.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                PlaceholderText="Workout Plan"
+                FontSize="20"
+                FontWeight="Bold"
+                BorderThickness="0,0,0,1"
+                Padding="0,4,0,8"/>
+
+            <!-- + Day -->
+            <Button Grid.Column="1"
+                    Padding="8"
+                    Command="{Binding AddTagCommand}">
+                <Button.Content>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                            Glyph="&#xE710;"/>
+                    <!-- Add -->
+                </Button.Content>
+            </Button>
+
+            <!-- Save & Back -->
+            <Button Grid.Column="2"
+                    Padding="8"
+                    Command="{Binding SaveAndGoBackCommand}">
+                <Button.Content>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                            Glyph="&#xE105;"/>
+                    <!-- Save -->
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <!-- ===== Debug/Status (optional) ===== -->
+        <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                Spacing="12">
+            <TextBlock Text="Days count:"/>
+            <TextBlock Text="{Binding Tage.Count}"/>
+            <TextBlock Text="• PlanId:"
+                    Margin="12,0,0,0"/>
+            <TextBlock Text="{Binding Trainingsplan.Trainingsplan_Id}"/>
+        </StackPanel>
+
+        <!-- ===== Scrollbarer Inhalt ===== -->
+        <ScrollViewer Grid.Row="2"
+                VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Tage}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="0,0,0,24">
-                            <!-- Tag-Header + +Button -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Name}"
-                                           FontSize="20"
-                                           FontWeight="Bold"
-                                           Margin="0,0,0,8"/>
-                                <Button Grid.Column="1"
-                                        Content="+"
-                                        FontSize="22"
-                                        VerticalAlignment="Top"
-                                        Margin="8,0,0,0"
-                                        Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
-                                        CommandParameter="{Binding}"/>
-                            </Grid>
-                            <!-- Übungen für diesen Tag -->
-                            <ItemsControl ItemsSource="{Binding Uebungen}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="0,0,0,10"
-                                                    BorderBrush="LightGray"
-                                                    BorderThickness="0,0,0,1">
-                                            <TextBox Text="{Binding Name, Mode=TwoWay}"
-                                                     FontSize="16"
-                                                     FontWeight="SemiBold"/>
-                                            <!-- Optional: Mehr Details, z.B. Sätze, Kommentar, etc. -->
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
+                        <Border Margin="0,0,0,12"
+                                Padding="10"
+                                BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                            <StackPanel Spacing="8">
+
+                                <!-- Day name + Add exercise -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox
+                                        Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        PlaceholderText="Day"
+                                        FontSize="18"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="0,2,0,6"/>
+
+                                    <Button Grid.Column="1"
+                                            Padding="6"
+                                            Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Content>
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Glyph="&#xE710;"/>
+                                            <!-- Add -->
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Exercises -->
+                                <ItemsControl ItemsSource="{Binding Uebungen}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,6,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBox
+                                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    PlaceholderText="Exercise"
+                                                    FontSize="16"
+                                                    BorderThickness="0,0,0,1"
+                                                    Padding="0,2,0,6"/>
+
+                                                <Button Grid.Column="1"
+                                                        Padding="6"
+                                                        Command="{Binding DataContext.DeleteExerciseCommand, ElementName=RootGrid}"
+                                                        CommandParameter="{Binding}">
+                                                    <Button.Content>
+                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                Glyph="&#xE74D;"/>
+                                                        <!-- Delete -->
+                                                    </Button.Content>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
-        <!-- Footer -->
-        <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,8,0,0"
-                    Spacing="12">
-            <Button Content="Tag hinzufügen"
-                    Command="{Binding AddTagCommand}"/>
-            <Button Content="Speichern und zurück"
-                    Command="{Binding SaveAndGoBackCommand}"/>
-        </StackPanel>
     </Grid>
 </Page>

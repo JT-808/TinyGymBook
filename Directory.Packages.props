@@ -11,5 +11,6 @@
     <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageVersion Include="Uno.Extensions.Core.WinUI" Version="5.3.8" />
     <PackageVersion Include="Uno.Extensions.Navigation.WinUI" Version="5.3.8" />
+    <PackageVersion Include="Uno.Fonts.Fluent" Version="2.7.1" />
   </ItemGroup>
 </Project>

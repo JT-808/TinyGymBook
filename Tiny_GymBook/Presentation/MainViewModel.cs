@@ -321,5 +321,12 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task GoBackAsync()
+    {
+        await _navigator.NavigateBackAsync(this);
+        Debug.WriteLine("[DEBUG] Von Home auf Home gewechselt");
+    }
+
 
 }
