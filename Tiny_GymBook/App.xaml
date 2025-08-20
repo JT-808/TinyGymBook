@@ -31,6 +31,42 @@
         <utu:ToolkitResources/>
       </ResourceDictionary.MergedDictionaries>
 
+
+      <!-- Globaler Icon-Button-Style -->
+      <Style x:Key="IconCircleButton"
+          TargetType="Button">
+        <Setter Property="MinWidth"
+            Value="44"/>
+        <Setter Property="MinHeight"
+            Value="44"/>
+        <Setter Property="Padding"
+            Value="0"/>
+        <Setter Property="CornerRadius"
+            Value="22"/>
+        <Setter Property="HorizontalAlignment"
+            Value="Center"/>
+        <Setter Property="VerticalAlignment"
+            Value="Center"/>
+        <Setter Property="Background"
+            Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+        <Setter Property="BorderBrush"
+            Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness"
+            Value="1"/>
+        <Setter Property="ContentTemplate">
+          <Setter.Value>
+            <!-- DataContext = Button.Content -> Glyph="{Binding}" -->
+            <DataTemplate>
+              <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                        Glyph="{Binding}"/>
+            </DataTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+
+
+
       <!-- Eigene globale Ressourcen hier einfügen -->
 
     </ResourceDictionary>

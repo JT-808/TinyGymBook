@@ -8,8 +8,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid x:Name="RootGrid"
-            Padding="12"
-            RowSpacing="12">
+          Padding="12"
+          RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Sticky Header -->
@@ -21,8 +21,8 @@
 
         <!-- ===== Sticky Header: Planname + Add Day + Save (gleiche Buttons wie unten) ===== -->
         <Grid Grid.Row="0"
-                ColumnSpacing="8"
-                Padding="0,0,0,8"
+              ColumnSpacing="8"
+              Padding="0,0,0,8"
               Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -45,7 +45,7 @@
                     Command="{Binding AddTagCommand}">
                 <Button.Content>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                            Glyph="&#xE710;"/>
+                              Glyph="&#xE710;"/>
                     <!-- Add -->
                 </Button.Content>
             </Button>
@@ -56,7 +56,7 @@
                     Command="{Binding SaveAndGoBackCommand}">
                 <Button.Content>
                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                            Glyph="&#xE105;"/>
+                              Glyph="&#xE105;"/>
                     <!-- Save -->
                 </Button.Content>
             </Button>
@@ -64,18 +64,18 @@
 
         <!-- ===== Debug/Status (optional) ===== -->
         <StackPanel Grid.Row="1"
-                Orientation="Horizontal"
-                Spacing="12">
+                    Orientation="Horizontal"
+                    Spacing="12">
             <TextBlock Text="Days count:"/>
             <TextBlock Text="{Binding Tage.Count}"/>
             <TextBlock Text="• PlanId:"
-                    Margin="12,0,0,0"/>
+                       Margin="12,0,0,0"/>
             <TextBlock Text="{Binding Trainingsplan.Trainingsplan_Id}"/>
         </StackPanel>
 
         <!-- ===== Scrollbarer Inhalt ===== -->
         <ScrollViewer Grid.Row="2"
-                VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Tage}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -112,7 +112,7 @@
                                             CommandParameter="{Binding}">
                                         <Button.Content>
                                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                    Glyph="&#xE710;"/>
+                                                      Glyph="&#xE710;"/>
                                             <!-- Add -->
                                         </Button.Content>
                                     </Button>
@@ -147,7 +147,7 @@
                                                         CommandParameter="{Binding}">
                                                     <Button.Content>
                                                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                Glyph="&#xE74D;"/>
+                                                                  Glyph="&#xE74D;"/>
                                                         <!-- Delete -->
                                                     </Button.Content>
                                                 </Button>

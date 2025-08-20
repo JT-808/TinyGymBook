@@ -54,6 +54,7 @@
 
     <!-- Ältere Woche laden -->
     <Button Grid.Row="1"
+            Style="{StaticResource IconCircleButton}"
             Content="Ältere Woche laden"
             Margin="0,8,0,8"
             Command="{Binding LoadOlderWeekCommand}"/>
@@ -108,6 +109,7 @@
                                 </StackPanel>
 
                                 <Button Grid.Column="1"
+                                        Style="{StaticResource IconCircleButton}"
                                         Content="+"
                                         VerticalAlignment="Center"
                                         Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
@@ -184,14 +186,14 @@
 
     <!-- Bottom-Navigation -->
     <utu:TabBar Grid.Row="3"
-        Margin="0,8,0,0">
+                Margin="0,8,0,0">
       <utu:TabBar.Items>
 
         <!-- HOME -->
         <utu:TabBarItem x:Uid="TabHome"
                         Padding="12"
                         Command="{Binding GoBackCommand}">
-                        
+
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"
@@ -203,7 +205,7 @@
         <utu:TabBarItem x:Uid="TabPlans"
                         Padding="12"
                         Command="{Binding NavigateToPlaeneCommand}">
-                       
+
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"

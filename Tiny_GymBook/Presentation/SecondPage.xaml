@@ -10,6 +10,7 @@
   x:Name="SecondPageRoot"
   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+
   <Grid Padding="12"
         RowSpacing="12">
 
@@ -19,7 +20,7 @@
       <RowDefinition Height="*"/>
       <!-- List -->
       <RowDefinition Height="Auto"/>
-      <!-- Add button -->
+      <!-- Footer Buttons -->
       <RowDefinition Height="Auto"/>
       <!-- TabBar -->
     </Grid.RowDefinitions>
@@ -40,93 +41,112 @@
     <ListView Grid.Row="1"
               ItemsSource="{Binding Trainingsplaene}"
               SelectedItem="{Binding SelectedPlan, Mode=TwoWay}"
+              IsItemClickEnabled="True"
+              ItemClick="OnPlanItemClick"
               Margin="0,8">
+
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="HorizontalContentAlignment"
+                  Value="Stretch"/>
+          <Setter Property="MinHeight"
+                  Value="56"/>
+        </Style>
+      </ListView.ItemContainerStyle>
+
       <ListView.ItemTemplate>
         <DataTemplate x:DataType="models:Trainingsplan">
           <Grid Padding="8"
-                BorderBrush="Black"
+                BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
                 BorderThickness="1"
-                Margin="0,4">
+                CornerRadius="8"
+                Margin="0,6"
+                ColumnSpacing="12">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-              <!-- Detail -->
+              <!-- Name -->
               <ColumnDefinition Width="Auto"/>
               <!-- Export -->
               <ColumnDefinition Width="Auto"/>
-              <!-- Löschen -->
+              <!-- Delete -->
             </Grid.ColumnDefinitions>
+
+            <!-- Name -->
             <TextBlock Text="{Binding Name}"
                        FontSize="16"
-                       VerticalAlignment="Center"/>
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"/>
 
-            <Button Content=">"
-                    Command="{Binding DataContext.OpenPlanCommand, ElementName=SecondPageRoot}"
-                    CommandParameter="{x:Bind}"
-                    Grid.Column="1"
-                    Margin="12,0,0,0"
-                    VerticalAlignment="Center"/>
-
-            <!-- NEU: Export dieses Plans -->
-            <Button Content="Export"
+            <!-- Export (Upload icon) -->
+            <Button Grid.Column="1"
+                    Style="{StaticResource IconCircleButton}"
                     Command="{Binding DataContext.ExportPlanCommand, ElementName=SecondPageRoot}"
-                    CommandParameter="{x:Bind}"
-                    Grid.Column="2"
-                    Margin="12,0,0,0"
-                    VerticalAlignment="Center"/>
+                    CommandParameter="{Binding}"
+                    ToolTipService.ToolTip="Export plan"
+                    AutomationProperties.Name="Export plan">
+              <Button.Content>&#xE898;</Button.Content>
+            </Button>
 
-            <Button Content="🗑"
+            <!-- Delete -->
+            <Button Grid.Column="2"
+                    Style="{StaticResource IconCircleButton}"
+                    Foreground="Red"
                     Command="{Binding DataContext.DeletePlanCommand, ElementName=SecondPageRoot}"
                     CommandParameter="{Binding}"
-                    Grid.Column="3"
-                    Margin="12,0,0,0"
-                    VerticalAlignment="Center"
-                    Foreground="Red"/>
+                    ToolTipService.ToolTip="Delete plan"
+                    AutomationProperties.Name="Delete plan">
+              <Button.Content>&#xE74D;</Button.Content>
+            </Button>
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
 
-    <!-- Hinzufügen-Button -->
+    <!-- Footer: Icon-Buttons (Add + Import unterscheiden!) -->
     <StackPanel Grid.Row="2"
                 Orientation="Horizontal"
                 HorizontalAlignment="Center"
                 Spacing="12">
-      <Button Content="Trainingsplan hinzufügen"
-              Command="{Binding AddPlanCommand}"/>
-      <Button Content="Importieren aus JSON"
-              Command="{Binding ImportFromJsonCommand}"/>
+
+      <!-- Add plan (Plus) -->
+      <Button Style="{StaticResource IconCircleButton}"
+              Command="{Binding AddPlanCommand}"
+              ToolTipService.ToolTip="Add plan"
+              AutomationProperties.Name="Add plan">
+        <Button.Content>&#xE710;</Button.Content>
+      </Button>
+
+      <!-- Import from JSON (Download icon, NICHT wie Export) -->
+      <Button Style="{StaticResource IconCircleButton}"
+              Command="{Binding ImportFromJsonCommand}"
+              ToolTipService.ToolTip="Import from JSON"
+              AutomationProperties.Name="Import from JSON">
+        <Button.Content>&#xE896;</Button.Content>
+      </Button>
     </StackPanel>
 
     <!-- Bottom-Navigation -->
     <utu:TabBar Grid.Row="3"
                 Margin="0,8,0,0">
       <utu:TabBar.Items>
-
-        <!-- HOME -->
         <utu:TabBarItem x:Uid="TabHome"
                         Padding="12"
                         Command="{Binding GoBackCommand}">
-
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"
                       Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
-
-        <!-- PLÄNE -->
         <utu:TabBarItem x:Uid="TabPlans"
                         Padding="12"
                         Command="{Binding NavigateToPlaeneCommand}">
-
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                       FontSize="24"
                       Glyph="&#xE8A5;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
-
       </utu:TabBar.Items>
     </utu:TabBar>
 
