@@ -116,7 +116,7 @@
                           <ItemsControl.ItemTemplate>
                             <DataTemplate>
                               <StackPanel Spacing="6"
-                                          Margin="0,0,0,10">
+                                          Margin="0,0,0,6">
 
                                 <!-- Übungskopf + [+] -->
                                 <Grid ColumnSpacing="8">
@@ -125,11 +125,10 @@
                                     <ColumnDefinition Width="Auto"/>
                                   </Grid.ColumnDefinitions>
 
-                                  <StackPanel>
+                                  <!-- Muskelgruppe entfernt -->
+                                  <StackPanel Spacing="0">
                                     <TextBlock Text="{Binding Name}"
                                                FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding Muskelgruppe}"
-                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
                                   </StackPanel>
 
                                   <Button Grid.Column="1"
@@ -144,12 +143,16 @@
 
                                 <!-- SÄTZE -->
                                 <ItemsControl ItemsSource="{Binding Saetze}"
-                                              Margin="0,4,0,0">
+                                              Margin="0,2,0,0">
                                   <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                       <StackPanel/>
+
+
                                     </ItemsPanelTemplate>
                                   </ItemsControl.ItemsPanel>
+
+
 
                                   <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -218,16 +221,25 @@
                                                   CommandParameter="{Binding}"/>
                                         </Grid>
 
-                                        <!-- feine Linie unter jedem Satz -->
-                                        <Border BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                                                BorderThickness="0,0,0,1"
-                                                Margin="0,2,0,0"/>
+
+
+
                                       </StackPanel>
                                     </DataTemplate>
                                   </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
+
+                                <!-- ⬅️ Trennlinie NACH jeder Übung -->
+                                <Border BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Margin="0,4,0,0"/>
+
+
                               </StackPanel>
+
+
+
                             </DataTemplate>
                           </ItemsControl.ItemTemplate>
                         </ItemsControl>
