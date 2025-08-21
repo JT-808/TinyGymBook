@@ -177,6 +177,25 @@ public class SqliteTrainingsplanService : IDataService
         }
     }
 
+    public async Task DeleteTagAsync(int tagId)
+    {
+        await _db.RunInTransactionAsync(conn =>
+        {
+            // Übungen zu diesem Tag holen
+            var uebungen = conn.Table<Uebung>().Where(u => u.TagId == tagId).ToList();
+
+            // Zuerst alle Sätze der Übungen löschen
+            foreach (var u in uebungen)
+                conn.Execute("DELETE FROM Satz WHERE Uebung_Id = ?", u.Uebung_Id);
+
+            // Dann die Übungen selbst löschen
+            conn.Execute("DELETE FROM Uebung WHERE TagId = ?", tagId);
+
+            // Zuletzt den Tag löschen
+            conn.Execute("DELETE FROM Tag WHERE TagId = ?", tagId);
+        });
+    }
+
 
     public async Task<List<Tag>> LadeTageAsync(int trainingsplanId)
     {

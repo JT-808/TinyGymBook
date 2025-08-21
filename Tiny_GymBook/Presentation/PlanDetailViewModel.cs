@@ -79,6 +79,17 @@ public partial class PlanDetailViewModel : ObservableObject
         Tage.Add(newTag);
     }
 
+
+    [RelayCommand]
+    public async Task DeleteTagAsync(Tag tag)
+    {
+        await _trainingsplanDBService.DeleteTagAsync(tag.TagId);
+        Tage.Remove(tag); //UI aktualisieren
+
+    }
+
+
+
     [RelayCommand]
     private async Task SaveAndGoBackAsync()
     {

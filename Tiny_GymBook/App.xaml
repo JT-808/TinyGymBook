@@ -34,25 +34,25 @@
 
       <!-- Globaler Icon-Button-Style -->
       <Style x:Key="IconCircleButton"
-          TargetType="Button">
+             TargetType="Button">
         <Setter Property="MinWidth"
-            Value="44"/>
+                Value="44"/>
         <Setter Property="MinHeight"
-            Value="44"/>
+                Value="44"/>
         <Setter Property="Padding"
-            Value="0"/>
+                Value="0"/>
         <Setter Property="CornerRadius"
-            Value="22"/>
+                Value="22"/>
         <Setter Property="HorizontalAlignment"
-            Value="Center"/>
+                Value="Center"/>
         <Setter Property="VerticalAlignment"
-            Value="Center"/>
+                Value="Center"/>
         <Setter Property="Background"
-            Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+                Value="{ThemeResource ControlFillColorDefaultBrush}"/>
         <Setter Property="BorderBrush"
-            Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
         <Setter Property="BorderThickness"
-            Value="1"/>
+                Value="1"/>
         <Setter Property="ContentTemplate">
           <Setter.Value>
             <!-- DataContext = Button.Content -> Glyph="{Binding}" -->
@@ -68,6 +68,11 @@
 
 
       <!-- Eigene globale Ressourcen hier einfügen -->
+
+   <!-- Global verfügbare Höhe zum „TabBar-Spacer“ -->
+      <x:Double x:Key="TabBarHeight">56</x:Double>
+
+
 
     </ResourceDictionary>
   </Application.Resources>

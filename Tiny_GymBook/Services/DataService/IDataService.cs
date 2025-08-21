@@ -8,6 +8,7 @@ public interface IDataService
     Task<List<Uebung>> LadeUebungenZuPlanAsync(int trainingsplanId);
     Task SpeichereUebung(Uebung uebung);
     Task SpeichereTagAsync(Tag tag);
+    Task DeleteTagAsync(int tagId);
     Task<List<Tag>> LadeTageAsync(int trainingsplanId);
 
     Task<List<Satz>> LadeSaetzeFuerUebungAsync(int uebungId);

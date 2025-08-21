@@ -12,25 +12,21 @@
           RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Sticky Header -->
+            <!-- Header -->
             <RowDefinition Height="Auto"/>
-            <!-- Debug (optional) -->
+            <!-- Debug -->
             <RowDefinition Height="*"/>
             <!-- Scrollbarer Inhalt -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer Buttons -->
+            <RowDefinition Height="Auto"/>
+            <!-- Spacer für (simulierte) TabBar -->
         </Grid.RowDefinitions>
 
-        <!-- ===== Sticky Header: Planname + Add Day + Save (gleiche Buttons wie unten) ===== -->
+        <!-- ===== Sticky Header: Planname  ===== -->
         <Grid Grid.Row="0"
-              ColumnSpacing="8"
               Padding="0,0,0,8"
               Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Planname -->
             <TextBox
                 Text="{Binding Trainingsplan.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 PlaceholderText="Workout Plan"
@@ -38,31 +34,9 @@
                 FontWeight="Bold"
                 BorderThickness="0,0,0,1"
                 Padding="0,4,0,8"/>
-
-            <!-- + Day -->
-            <Button Grid.Column="1"
-                    Padding="8"
-                    Command="{Binding AddTagCommand}">
-                <Button.Content>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE710;"/>
-                    <!-- Add -->
-                </Button.Content>
-            </Button>
-
-            <!-- Save & Back -->
-            <Button Grid.Column="2"
-                    Padding="8"
-                    Command="{Binding SaveAndGoBackCommand}">
-                <Button.Content>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                              Glyph="&#xE105;"/>
-                    <!-- Save -->
-                </Button.Content>
-            </Button>
         </Grid>
 
-        <!-- ===== Debug/Status (optional) ===== -->
+        <!-- ===== Debug/Status ===== -->
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
                     Spacing="12">
@@ -97,6 +71,8 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <!-- Delete -->
                                     </Grid.ColumnDefinitions>
 
                                     <TextBox
@@ -105,7 +81,7 @@
                                         FontSize="18"
                                         BorderThickness="0,0,0,1"
                                         Padding="0,2,0,6"/>
-
+                                    <!-- Add exercise -->
                                     <Button Grid.Column="1"
                                             Padding="6"
                                             Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
@@ -116,6 +92,19 @@
                                             <!-- Add -->
                                         </Button.Content>
                                     </Button>
+
+                                    <!-- Delete day -->
+                                    <Button Grid.Column="2"
+                                            Padding="6"
+                                            Style="{StaticResource IconCircleButton}"
+                                            Foreground="Red"
+                                            Command="{Binding DataContext.DeleteTagCommand, ElementName=RootGrid}"
+                                            CommandParameter="{Binding}"
+                                            ToolTipService.ToolTip="Delete day"
+                                            AutomationProperties.Name="Delete day">
+                                        <Button.Content>&#xE74D;</Button.Content>
+                                    </Button>
+
                                 </Grid>
 
                                 <!-- Exercises -->
@@ -156,12 +145,45 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
+
+
+
+
                             </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
+        <!-- ===== Footer: Icon-Buttons (Add day + Save) ===== -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="12"
+                    Margin="0,8,0,0">
+            <!-- Add day -->
+            <Button Style="{StaticResource IconCircleButton}"
+                    Command="{Binding AddTagCommand}"
+                    ToolTipService.ToolTip="Add day"
+                    AutomationProperties.Name="Add day">
+                <Button.Content>&#xE710;</Button.Content>
+            </Button>
+
+            <!-- Save & Back -->
+            <Button Style="{StaticResource IconCircleButton}"
+                    Command="{Binding SaveAndGoBackCommand}"
+                    ToolTipService.ToolTip="Save and Back"
+                    AutomationProperties.Name="Save">
+                <Button.Content>&#xE105;</Button.Content>
+            </Button>
+        </StackPanel>
+
+        <!-- Spacer, der eine TabBar „vorspielt“ -->
+        <Border Grid.Row="4"
+                Height="{StaticResource TabBarHeight}"
+                Background="Transparent"/>
+
 
     </Grid>
 </Page>
