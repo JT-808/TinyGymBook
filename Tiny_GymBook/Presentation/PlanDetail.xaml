@@ -81,19 +81,18 @@
                                         FontSize="18"
                                         BorderThickness="0,0,0,1"
                                         Padding="0,2,0,6"/>
+
                                     <!-- Add exercise -->
                                     <Button Grid.Column="1"
                                             Padding="6"
+                                            Style="{StaticResource IconCircleButton}"
                                             Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
-                                            CommandParameter="{Binding}">
-                                        <Button.Content>
-                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                      Glyph="&#xE710;"/>
-                                            <!-- Add -->
-                                        </Button.Content>
+                                            CommandParameter="{Binding}"
+                                            ToolTipService.ToolTip="Add exercise"
+                                            AutomationProperties.Name="Add exercise">
+                                        <Button.Content>&#xE710;</Button.Content>
                                     </Button>
 
-                                    <!-- Delete day -->
                                     <Button Grid.Column="2"
                                             Padding="6"
                                             Style="{StaticResource IconCircleButton}"
