@@ -89,6 +89,21 @@ public partial class PlanDetailViewModel : ObservableObject
     }
 
 
+    [RelayCommand]
+    private async Task NavigateToHomeAsync()
+    {
+        //Vor dem Wechsel speichern
+        if (Trainingsplan is not null)
+        {
+            await _trainingsplanDBService.SpeichereTrainingsplanAsync(Trainingsplan, Tage);
+        }
+
+
+        await _navigator.NavigateViewModelAsync<MainViewModel>(
+            this,
+            qualifier: Qualifiers.ClearBackStack);
+    }
+
 
     [RelayCommand]
     private async Task SaveAndGoBackAsync()
