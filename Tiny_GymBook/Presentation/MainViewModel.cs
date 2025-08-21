@@ -92,8 +92,8 @@ public partial class MainViewModel : ObservableObject
         {
             Nummer = neueNummer,
             Uebung_Id = uebung.Uebung_Id,
-            Gewicht = 0,
-            Wiederholungen = 0,
+            Gewicht = null,
+            Wiederholungen = null,
             Kommentar = string.Empty,
             Training_Date = DateTime.Today.ToString("yyyy-MM-dd"),
             Jahr = zielWoche.Jahr,

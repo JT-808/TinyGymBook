@@ -13,9 +13,9 @@ public class Satz
 
     public int Nummer { get; set; }
 
-    public double Gewicht { get; set; }
+    public double? Gewicht { get; set; }
 
-    public int Wiederholungen { get; set; }
+    public int? Wiederholungen { get; set; }
 
     public string Kommentar { get; set; } = string.Empty;
     public string Training_Date { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
