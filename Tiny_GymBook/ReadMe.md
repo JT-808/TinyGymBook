@@ -25,6 +25,12 @@ dotnet clean \
 && dotnet build
 
 
+dotnet clean
+                            dotnet build -c Debug
+                            dotnet run -c Debug --framework net9.0-desktop --project Tiny_GymBook/Tiny_GymBook.csproj
+
+
+
 
 dotnet run --project Tiny_GymBook/Tiny_GymBook.csproj --framework net9.0-desktop
 

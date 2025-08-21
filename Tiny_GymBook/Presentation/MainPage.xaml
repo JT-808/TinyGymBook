@@ -10,8 +10,8 @@
   x:Name="RootPage"
   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-  <Grid Padding="16,12"
-        RowSpacing="12">
+  <Grid Padding="12"
+        RowSpacing="6">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <!-- Header -->
@@ -23,7 +23,7 @@
       <!-- Bottom Nav -->
     </Grid.RowDefinitions>
 
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <Grid Grid.Row="0"
           ColumnSpacing="12">
       <Grid.ColumnDefinitions>
@@ -51,17 +51,19 @@
       </StackPanel>
     </Grid>
 
-    <!-- Ältere Woche -->
+    <!-- ===== ÄLTERE WOCHE LADEN ===== -->
     <Button Grid.Row="1"
             Content="Ältere Woche laden"
             Margin="0,4,0,8"
             Command="{Binding LoadOlderWeekCommand}"/>
 
-    <!-- FEED -->
+    <!-- ===== FEED ===== -->
     <ScrollViewer Grid.Row="2"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-      <ItemsControl ItemsSource="{Binding Wochen}">
+
+      <ItemsControl ItemsSource="{Binding Wochen}"
+                    VerticalAlignment="Top">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <StackPanel/>
@@ -70,20 +72,28 @@
 
         <ItemsControl.ItemTemplate>
           <DataTemplate>
-            <StackPanel Margin="0,0,0,20"
-                        Spacing="8">
+            <StackPanel Spacing="8"
+                        Margin="0,0,0,12">
 
-              <!-- Wochen-Header (Linie) -->
-              <Border BorderThickness="0,0,0,1"
-                      BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                      Padding="0,0,0,6"
-                      Margin="0,0,0,8">
+              <!-- Wochen-Subheader (dezent) -->
+              <Grid Padding="12,6"
+                    Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding WochenHeaderText}"
                            FontSize="16"
                            FontWeight="SemiBold"/>
-              </Border>
+                <!-- Wochen-Subheader: rechts "Tage: N" -->
+                <TextBlock Grid.Column="1"
+                           Opacity="0.8">
+  <Run Text="Tage: "/>
+  <Run Text="{Binding Tage.Count}"/>
+                </TextBlock>
+              </Grid>
 
-              <!-- TAGE (jeder Tag mit Rahmen) -->
+              <!-- TAGE DER WOCHE -->
               <ItemsControl ItemsSource="{Binding Tage}">
                 <ItemsControl.ItemsPanel>
                   <ItemsPanelTemplate>
@@ -93,70 +103,106 @@
 
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Border Margin="0,0,0,12"
-                            Padding="10"
-                            CornerRadius="8"
+                    <!-- Tag-Card mit Akzentleiste links (wie PlanDetail) -->
+                    <Border Margin="0,0,0,8"
+                            Padding="0"
+                            CornerRadius="10"
                             BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
                             BorderThickness="1">
-                      <StackPanel Spacing="8">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="4"/>
+                          <!-- Akzent -->
+                          <ColumnDefinition Width="*"/>
+                          <!-- Inhalt -->
+                        </Grid.ColumnDefinitions>
 
-                        <!-- Tag-Name -->
-                        <TextBlock Text="{Binding Name}"
-                                   FontSize="15"
-                                   FontWeight="Bold"/>
+                        <!-- Akzent links -->
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                CornerRadius="10,0,0,10"/>
 
-                        <!-- ÜBUNGEN -->
-                        <ItemsControl ItemsSource="{Binding Uebungen}">
-                          <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                              <StackPanel/>
-                            </ItemsPanelTemplate>
-                          </ItemsControl.ItemsPanel>
+                        <!-- Inhalt -->
+                        <StackPanel Grid.Column="1"
+                                    Spacing="0">
 
-                          <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                              <StackPanel Spacing="6"
-                                          Margin="0,0,0,6">
+                          <!-- Tag-Header -->
+                          <Grid Padding="12,8"
+                                Background="{ThemeResource ControlFillColorDefaultBrush}">
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="*"/>
+                              <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                                <!-- Übungskopf + [+] -->
-                                <Grid ColumnSpacing="8">
-                                  <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                  </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Name}"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"/>
 
-                                  <!-- Muskelgruppe entfernt -->
-                                  <StackPanel Spacing="0">
+                            <!-- Optional: künftige Tag-Actions hier -->
+                          </Grid>
+
+                          <!-- Subheader: Übungen-Anzahl -->
+                          <Grid Padding="12,6"
+                                Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="*"/>
+                              <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Übungen in diesem Tag"
+                                       Opacity="0.8"/>
+                            <!-- Tag-Subheader: rechts "Übungen: N" -->
+                            <TextBlock Grid.Column="1"
+                                       FontWeight="SemiBold">
+  <Run Text="Übungen: "/>
+  <Run Text="{Binding Uebungen.Count}"/>
+                            </TextBlock>
+                          </Grid>
+
+                          <!-- Übungen-Liste -->
+                          <ItemsControl ItemsSource="{Binding Uebungen}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel/>
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <StackPanel Spacing="6"
+                                            Margin="12,8,12,0">
+
+                                  <!-- Übungskopf + [+ Satz] -->
+                                  <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                      <ColumnDefinition Width="*"/>
+                                      <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
                                     <TextBlock Text="{Binding Name}"
-                                               FontWeight="SemiBold"/>
-                                  </StackPanel>
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center"/>
 
-                                  <Button Grid.Column="1"
-                                          Style="{StaticResource IconCircleButton}"
-                                          Content="&#xE710;"
-                                          VerticalAlignment="Center"
-                                          Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
-                                          CommandParameter="{Binding}"/>
-                                </Grid>
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource IconCircleButton}"
+                                            Content="&#xE710;"
+                                            ToolTipService.ToolTip="Satz hinzufügen"
+                                            VerticalAlignment="Center"
+                                            Command="{Binding DataContext.AddSatzCommand, ElementName=RootPage}"
+                                            CommandParameter="{Binding}"/>
+                                  </Grid>
 
+                                  <!-- Sätze-Liste -->
+                                  <ItemsControl ItemsSource="{Binding Saetze}"
+                                                Margin="0,2,0,0">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                        <StackPanel/>
+                                      </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
 
-
-                                <!-- SÄTZE -->
-                                <ItemsControl ItemsSource="{Binding Saetze}"
-                                              Margin="0,2,0,0">
-                                  <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                      <StackPanel/>
-
-
-                                    </ItemsPanelTemplate>
-                                  </ItemsControl.ItemsPanel>
-
-
-
-                                  <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                      <StackPanel>
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate>
                                         <Grid Margin="0,2,0,2"
                                               ColumnSpacing="8">
                                           <Grid.ColumnDefinitions>
@@ -187,7 +233,8 @@
                                                               Padding="6,2"
                                                               FontSize="14"
                                                               SpinButtonPlacementMode="Hidden"
-                                                              LostFocus="OnSatzFieldLostFocus"/>
+                                                              LostFocus="OnSatzFieldLostFocus"
+                                                              VerticalAlignment="Center"/>
 
                                           <controls:NumberBox Grid.Column="2"
                                                               Value="{Binding Wiederholungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -200,7 +247,8 @@
                                                               Padding="6,2"
                                                               FontSize="14"
                                                               SpinButtonPlacementMode="Hidden"
-                                                              LostFocus="OnSatzFieldLostFocus"/>
+                                                              LostFocus="OnSatzFieldLostFocus"
+                                                              VerticalAlignment="Center"/>
 
                                           <TextBox Grid.Column="3"
                                                    Text="{Binding Kommentar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -208,6 +256,7 @@
                                                    Height="28"
                                                    Padding="6,2"
                                                    FontSize="14"
+                                                   VerticalContentAlignment="Center"
                                                    TextWrapping="NoWrap"
                                                    LostFocus="OnSatzFieldLostFocus"/>
 
@@ -220,31 +269,24 @@
                                                   Command="{Binding DataContext.DeleteSatzCommand, ElementName=RootPage}"
                                                   CommandParameter="{Binding}"/>
                                         </Grid>
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ItemsControl>
 
+                                  <!-- Trennlinie nach der Übung -->
+                                  <Border BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                                          BorderThickness="0,0,0,1"
+                                          Margin="0,6,0,0"/>
+                                </StackPanel>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
 
-
-
-                                      </StackPanel>
-                                    </DataTemplate>
-                                  </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-
-                                <!-- Trennlinie NACH jeder Übung -->
-                                <Border BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
-                                        BorderThickness="0,0,0,1"
-                                        Margin="0,4,0,0"/>
-
-
-                              </StackPanel>
-
-
-
-                            </DataTemplate>
-                          </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                      </StackPanel>
+                          <!-- kleiner Bottom-Puffer in der Card -->
+                          <Border Height="8"
+                                  Background="Transparent"/>
+                        </StackPanel>
+                      </Grid>
                     </Border>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -256,7 +298,7 @@
       </ItemsControl>
     </ScrollViewer>
 
-    <!-- Bottom-Navigation (weiterhin Uno Toolkit) -->
+    <!-- ===== Bottom-Navigation (Uno Toolkit) ===== -->
     <utu:TabBar Grid.Row="3"
                 Margin="0,8,0,0">
       <utu:TabBar.Items>
@@ -269,6 +311,7 @@
                       Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
+
         <utu:TabBarItem x:Uid="TabPlans"
                         Padding="12"
                         Command="{Binding NavigateToPlaeneCommand}">

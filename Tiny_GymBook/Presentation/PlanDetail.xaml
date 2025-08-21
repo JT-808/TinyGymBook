@@ -9,7 +9,7 @@
 
     <Grid x:Name="RootGrid"
           Padding="12"
-          RowSpacing="12">
+          RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Header -->
@@ -49,7 +49,9 @@
 
         <!-- ===== Scrollbarer Inhalt ===== -->
         <ScrollViewer Grid.Row="2"
-                      VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,0,0">
+
             <ItemsControl ItemsSource="{Binding Tage}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -59,96 +61,135 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="0,0,0,12"
-                                Padding="10"
+                        <!-- Day-Card -->
+                        <Border Margin="0,0,0,8"
+                                Padding="0"
                                 BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}"
                                 BorderThickness="1"
-                                CornerRadius="8">
-                            <StackPanel Spacing="8">
+                                CornerRadius="10">
 
-                                <!-- Day name + Add exercise -->
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <!-- Delete -->
-                                    </Grid.ColumnDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4"/>
+                                    <!-- Akzentleiste -->
+                                    <ColumnDefinition Width="*"/>
+                                    <!-- Inhalt -->
+                                </Grid.ColumnDefinitions>
 
-                                    <TextBox
-                                        Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        PlaceholderText="Day"
-                                        FontSize="18"
-                                        BorderThickness="0,0,0,1"
-                                        Padding="0,2,0,6"/>
+                                <!-- Linke Akzentleiste -->
+                                <Border Grid.Column="0"
+                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        CornerRadius="10,0,0,10"/>
 
-                                    <!-- Add exercise -->
-                                    <Button Grid.Column="1"
-                                            Padding="6"
-                                            Style="{StaticResource IconCircleButton}"
-                                            Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
-                                            CommandParameter="{Binding}"
-                                            ToolTipService.ToolTip="Add exercise"
-                                            AutomationProperties.Name="Add exercise">
-                                        <Button.Content>&#xE710;</Button.Content>
-                                    </Button>
+                                <!-- Inhalt -->
+                                <StackPanel Grid.Column="1"
+                                            Spacing="0">
 
-                                    <Button Grid.Column="2"
-                                            Padding="6"
-                                            Style="{StaticResource IconCircleButton}"
-                                            Foreground="Red"
-                                            Command="{Binding DataContext.DeleteTagCommand, ElementName=RootGrid}"
-                                            CommandParameter="{Binding}"
-                                            ToolTipService.ToolTip="Delete day"
-                                            AutomationProperties.Name="Delete day">
-                                        <Button.Content>&#xE74D;</Button.Content>
-                                    </Button>
+                                    <!-- HEADER: Day-Name + Buttons -->
+                                    <Grid Padding="12,8"
+                                          Background="{ThemeResource ControlFillColorDefaultBrush}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                </Grid>
+                                        <!-- Day-Name -->
+                                        <TextBox
+                                            Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="Day"
+                                            FontSize="18"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="0,2,0,6"
+                                            MinWidth="120"/>
 
-                                <!-- Exercises -->
-                                <ItemsControl ItemsSource="{Binding Uebungen}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
+                                        <!-- Add exercise -->
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource IconCircleButton}"
+                                                Command="{Binding DataContext.AddUebungToTagCommand, ElementName=RootGrid}"
+                                                CommandParameter="{Binding}"
+                                                ToolTipService.ToolTip="Übung hinzufügen"
+                                                AutomationProperties.Name="Add exercise"
+                                                Margin="8,0,0,0">
+                                            <Button.Content>&#xE710;</Button.Content>
+                                        </Button>
 
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,6,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
+                                        <!-- Delete day -->
+                                        <Button Grid.Column="2"
+                                                Style="{StaticResource IconCircleButton}"
+                                                Foreground="Red"
+                                                Command="{Binding DataContext.DeleteTagCommand, ElementName=RootGrid}"
+                                                CommandParameter="{Binding}"
+                                                ToolTipService.ToolTip="Tag löschen"
+                                                AutomationProperties.Name="Delete day"
+                                                Margin="8,0,0,0">
+                                            <Button.Content>&#xE74D;</Button.Content>
+                                        </Button>
+                                    </Grid>
 
-                                                <TextBox
-                                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    PlaceholderText="Exercise"
-                                                    FontSize="16"
-                                                    BorderThickness="0,0,0,1"
-                                                    Padding="0,2,0,6"/>
+                                    <!-- SUBHEADER: kleine Hilfe + Anzahl Übungen -->
+                                    <Grid Padding="12,6"
+                                          Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                                <Button Grid.Column="1"
-                                                        Padding="6"
-                                                        Command="{Binding DataContext.DeleteExerciseCommand, ElementName=RootGrid}"
-                                                        CommandParameter="{Binding}">
-                                                    <Button.Content>
-                                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                                  Glyph="&#xE74D;"/>
-                                                        <!-- Delete -->
-                                                    </Button.Content>
-                                                </Button>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                        <TextBlock Text="Übungen in diesem Tag"
+                                                   Opacity="0.8"/>
 
+                                        <StackPanel Grid.Column="1"
+                                                    Orientation="Horizontal"
+                                                    Spacing="6">
+                                            <TextBlock Text="Anzahl:"
+                                                       Opacity="0.8"/>
+                                            <TextBlock Text="{Binding Uebungen.Count}"
+                                                       FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Grid>
 
+                                    <!-- EXERCISES -->
+                                    <ItemsControl ItemsSource="{Binding Uebungen}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
 
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="12,8,12,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
+                                                    <TextBox
+                                                        Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        PlaceholderText="Exercise"
+                                                        FontSize="16"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="0,2,0,6"/>
 
-                            </StackPanel>
+                                                    <Button Grid.Column="1"
+                                                            Style="{StaticResource IconCircleButton}"
+                                                            Command="{Binding DataContext.DeleteExerciseCommand, ElementName=RootGrid}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTipService.ToolTip="Übung löschen"
+                                                            AutomationProperties.Name="Delete exercise"
+                                                            Margin="8,0,0,0">
+                                                        <Button.Content>&#xE74D;</Button.Content>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Kleiner Bodenabstand in der Card -->
+                                    <Border Height="8"
+                                            Background="Transparent"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
