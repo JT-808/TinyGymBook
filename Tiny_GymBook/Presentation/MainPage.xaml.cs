@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input; // für IAsyncRelayCommand<T>
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
 using Tiny_GymBook.Models;
 
 namespace Tiny_GymBook.Presentation;
@@ -17,6 +19,15 @@ public sealed partial class MainPage : Page
         {
             if (cmd.CanExecute(satz))
                 await cmd.ExecuteAsync(satz);
+        }
+    }
+
+
+    private void Kommentar_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe)
+        {
+            FlyoutBase.ShowAttachedFlyout(fe);
         }
     }
 }
