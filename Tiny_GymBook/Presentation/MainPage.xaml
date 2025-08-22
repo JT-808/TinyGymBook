@@ -43,7 +43,7 @@
         <ComboBox ItemsSource="{Binding AllePlaene}"
                   SelectedItem="{Binding AktiverPlan, Mode=TwoWay}"
                   DisplayMemberPath="Name"
-                  PlaceholderText="Plan wählen"
+                  Header="Plan wählen"
                   MinWidth="220"/>
         <TextBlock Text="{Binding AllePlaene.Count}"
                    VerticalAlignment="Center"
@@ -268,28 +268,28 @@
                                                   <Style TargetType="FlyoutPresenter">
                                                     <!-- passt sich Light/Dark automatisch an, deckend -->
                                                     <Setter Property="Background"
-                                                        Value="{ThemeResource SolidBackgroundFillColorBaseBrush}"/>
+                                                            Value="{ThemeResource SolidBackgroundFillColorBaseBrush}"/>
                                                     <Setter Property="Foreground"
-                                                        Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                            Value="{ThemeResource TextFillColorPrimaryBrush}"/>
                                                     <Setter Property="BorderBrush"
-                                                        Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+                                                            Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
                                                     <Setter Property="BorderThickness"
-                                                        Value="1"/>
+                                                            Value="1"/>
                                                     <Setter Property="CornerRadius"
-                                                        Value="8"/>
+                                                            Value="8"/>
                                                     <Setter Property="Padding"
-                                                        Value="12"/>
+                                                            Value="12"/>
                                                   </Style>
                                                 </Flyout.FlyoutPresenterStyle>
 
                                                 <StackPanel Width="300"
-                                                    Spacing="8">
+                                                            Spacing="8">
                                                   <TextBlock Text="Kommentar"
-                                                      FontWeight="SemiBold"/>
+                                                             FontWeight="SemiBold"/>
                                                   <TextBox Text="{Binding Text, ElementName=KommentarCompact, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                            AcceptsReturn="True"
-                                                      TextWrapping="Wrap"
-                                                      MinHeight="120"/>
+                                                           TextWrapping="Wrap"
+                                                           MinHeight="120"/>
                                                 </StackPanel>
                                               </Flyout>
                                             </FlyoutBase.AttachedFlyout>

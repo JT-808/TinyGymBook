@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Windows.Storage; // für ApplicationData
+
 using Tiny_GymBook.Models;
 using Tiny_GymBook.Services.DataService;
 using System.Linq;
@@ -14,6 +16,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly INavigator _navigator;
     private readonly IDataService _trainingsplanDBService;
+    private const string LastPlanKey = "LastSelectedPlanId";
 
     [ObservableProperty]
     private Trainingswoche? aktuelleWoche;
@@ -41,6 +44,7 @@ public partial class MainViewModel : ObservableObject
     }
 
 
+
     private async Task LadeAllePlaeneAsync()
     {
         var plaene = await _trainingsplanDBService.LadeTrainingsplaeneAsync();
@@ -48,9 +52,23 @@ public partial class MainViewModel : ObservableObject
         foreach (var plan in plaene)
             AllePlaene.Add(plan);
 
+        // Zuletzt genutzten Plan suchen
+        var local = ApplicationData.Current.LocalSettings;
+        if (local.Values.TryGetValue(LastPlanKey, out var storedIdObj) && storedIdObj is int storedId)
+        {
+            var match = AllePlaene.FirstOrDefault(p => p.Trainingsplan_Id == storedId);
+            if (match != null)
+            {
+                AktiverPlan = match;
+                return;
+            }
+        }
+
+        // Fallback: erster Plan
         if (AktiverPlan == null && AllePlaene.Any())
             AktiverPlan = AllePlaene.First();
     }
+
 
     private void InitializeWeek()
     {
@@ -64,9 +82,16 @@ public partial class MainViewModel : ObservableObject
         AktuelleWoche = new Trainingswoche(kw, heute.Year, montag);
     }
 
-    // Immer wenn sich der aktive Plan ändert, lade die Tage/Übungen/Sätze neu!
+    // Immer wenn sich der aktive Plan ändert,
+    // Setze aktuellen Plan als Aktiv,  lade die Tage/Übungen/Sätze neu
     partial void OnAktiverPlanChanged(Trainingsplan? value)
     {
+        if (value != null)
+        {
+            var local = ApplicationData.Current.LocalSettings;
+            local.Values[LastPlanKey] = value.Trainingsplan_Id;
+        }
+
         _ = RebuildCurrentWeekFromActivePlanAsync();
     }
 
