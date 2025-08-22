@@ -11,7 +11,7 @@
   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
   <Grid Padding="12"
-      RowSpacing="6">
+        RowSpacing="6">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <!-- Header -->
@@ -43,9 +43,9 @@
       <ListView.ItemContainerStyle>
         <Style TargetType="ListViewItem">
           <Setter Property="HorizontalContentAlignment"
-              Value="Stretch"/>
+                  Value="Stretch"/>
           <Setter Property="MinHeight"
-              Value="56"/>
+                  Value="56"/>
         </Style>
       </ListView.ItemContainerStyle>
 
@@ -72,11 +72,11 @@
 
               <!-- Inhalt -->
               <StackPanel Grid.Column="1"
-                  Spacing="0">
+                          Spacing="0">
 
                 <!-- Header: Name + Buttons -->
                 <Grid Padding="12,8"
-                    Background="{ThemeResource ControlFillColorDefaultBrush}">
+                      Background="{ThemeResource ControlFillColorDefaultBrush}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -114,7 +114,7 @@
 
                 <!-- Subheader (dezent) -->
                 <Grid Padding="12,6"
-                    Background="{ThemeResource ControlFillColorSecondaryBrush}">
+                      Background="{ThemeResource ControlFillColorSecondaryBrush}">
                   <TextBlock Opacity="0.8">
                     <Run Text="Plan-Aktionen: "/>
                     <Run Text="Exportieren oder Löschen"/>
@@ -122,13 +122,33 @@
                 </Grid>
 
                 <Border Height="8"
-                    Background="Transparent"/>
+                        Background="Transparent"/>
               </StackPanel>
             </Grid>
           </Border>
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+
+    <!-- Hinweis, wenn keine Pläne vorhanden sind -->
+    <StackPanel Grid.Row="1"
+                x:Load="{Binding ShowCreateHint}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="12"
+                IsHitTestVisible="False">
+      <!-- Großes Plus als “leer/neu” Hinweis -->
+      <FontIcon Glyph="&#xE710;"
+                FontSize="56"
+                Opacity="0.18"/>
+      <!-- E710 = Add -->
+      <!-- Pfeil nach unten, zeigt auf die Footer-Buttons -->
+      <FontIcon Glyph="&#xE70D;"
+                FontSize="28"
+                Opacity="0.45"/>
+      <!-- E70D = ChevronDown -->
+    </StackPanel>
+
 
     <!-- Footer: Add + Import -->
     <StackPanel Grid.Row="2"
@@ -152,24 +172,24 @@
 
     <!-- TabBar -->
     <utu:TabBar Grid.Row="3"
-        Margin="0,8,0,0">
+                Margin="0,8,0,0">
       <utu:TabBar.Items>
         <utu:TabBarItem x:Uid="TabHome"
-            Padding="12"
-            Command="{Binding GoBackCommand}">
+                        Padding="12"
+                        Command="{Binding GoBackCommand}">
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                FontSize="24"
-                Glyph="&#xE10F;"/>
+                      FontSize="24"
+                      Glyph="&#xE10F;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
         <utu:TabBarItem x:Uid="TabPlans"
-            Padding="12"
-            Command="{Binding NavigateToPlaeneCommand}">
+                        Padding="12"
+                        Command="{Binding NavigateToPlaeneCommand}">
           <utu:TabBarItem.Icon>
             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                FontSize="24"
-                Glyph="&#xE8A5;"/>
+                      FontSize="24"
+                      Glyph="&#xE8A5;"/>
           </utu:TabBarItem.Icon>
         </utu:TabBarItem>
       </utu:TabBar.Items>

@@ -39,17 +39,21 @@ public partial class MainViewModel : ObservableObject
 
     private async Task InitializeAsync()
     {
-        try
-        {
-            await _trainingsplanDBService.InitAsync();
-            InitializeWeek();                 // 1) Woche bestimmen
-            await LadeAllePlaeneAsync();      // 2) Pläne laden -> setzt AktiverPlan
-            await LoadInitialWeeksAsync();    // 3) Feed laden
-        }
-        finally
-        {
 
+        await _trainingsplanDBService.InitAsync();
+        InitializeWeek();                 // 1) Woche bestimmen
+        await LadeAllePlaeneAsync();      // 2) Pläne laden -> setzt AktiverPlan
+        await LoadInitialWeeksAsync();    // 3) Feed laden
+
+
+
+        // Wenn keine Pläne existieren: direkt in die Planverwaltung springen
+        if (AllePlaene.Count == 0)
+        {
+            await _navigator.NavigateViewModelAsync<SecondViewModel>(this);
+            return;
         }
+
     }
 
     private async Task LadeAllePlaeneAsync()

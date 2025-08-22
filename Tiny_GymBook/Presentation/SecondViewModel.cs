@@ -23,6 +23,7 @@ public partial class SecondViewModel : ObservableObject
     private readonly ITrainingsplanIOService _trainingsplanIOService;
 
     [ObservableProperty] private ObservableCollection<Trainingsplan> trainingsplaene = new();
+    [ObservableProperty] private bool showCreateHint; // steuert die Anzeige
     [ObservableProperty] private Trainingsplan? selectedPlan;
 
     public SecondViewModel(INavigator navigator, IDataService trainingsplanDBService, ITrainingsplanIOService trainingsplanIOService)
@@ -30,6 +31,9 @@ public partial class SecondViewModel : ObservableObject
         _navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
         _trainingsplanDBService = trainingsplanDBService ?? throw new ArgumentNullException(nameof(trainingsplanDBService));
         _trainingsplanIOService = trainingsplanIOService ?? throw new ArgumentNullException(nameof(trainingsplanIOService));
+
+        Trainingsplaene.CollectionChanged += (_, __) =>
+          ShowCreateHint = Trainingsplaene.Count == 0;
 
         _ = LadeTrainingsplaeneAsync();
     }
@@ -40,6 +44,8 @@ public partial class SecondViewModel : ObservableObject
         Trainingsplaene.Clear();
         foreach (var plan in geladenePlaene)
             Trainingsplaene.Add(plan);
+
+        ShowCreateHint = Trainingsplaene.Count == 0; // initial setzen
     }
 
     // Buttons
