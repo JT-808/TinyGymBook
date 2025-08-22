@@ -5,6 +5,8 @@
              xmlns:utu="using:Uno.Toolkit.UI"
              xmlns:utum="using:Uno.Toolkit.UI.Material">
 
+
+
   <Application.Resources>
     <ResourceDictionary>
 
@@ -69,7 +71,7 @@
 
       <!-- Eigene globale Ressourcen hier einfügen -->
 
-   <!-- Global verfügbare Höhe zum „TabBar-Spacer“ -->
+      <!-- Global verfügbare Höhe zum „TabBar-Spacer“ -->
       <x:Double x:Key="TabBarHeight">56</x:Double>
 
 

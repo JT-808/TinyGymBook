@@ -1,6 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0-desktop</TargetFrameworks>
+    <TargetFrameworks>net9.0-desktop;net9.0-android;</TargetFrameworks>
 
     <!-- ;net9.0-android;-->
 
@@ -21,7 +21,7 @@
     <!-- App Identifier -->
     <ApplicationId>com.companyname.TinyGymBook</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>0.8</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <!-- Package Publisher -->
     <ApplicationPublisher>Tiny_GymBook</ApplicationPublisher>
@@ -50,6 +50,7 @@
     </UnoFeatures>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.bundle_green" />
     <PackageReference Include="sqlite-net-pcl" />
     <PackageReference Include="Uno.Fonts.Fluent" />
   </ItemGroup>
