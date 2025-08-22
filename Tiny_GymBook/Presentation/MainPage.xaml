@@ -53,9 +53,16 @@
 
     <!-- ===== ÄLTERE WOCHE LADEN ===== -->
     <Button Grid.Row="1"
-            Content="Ältere Woche laden"
-            Margin="0,4,0,8"
-            Command="{Binding LoadOlderWeekCommand}"/>
+            Style="{StaticResource IconCircleButton}"
+            Content="&#xE81C;"
+            ToolTipService.ToolTip="Ältere Woche laden"
+            Command="{Binding LoadOlderWeekCommand}">
+      <Button.KeyboardAccelerators>
+        <KeyboardAccelerator Key="PageUp"
+                             Modifiers="Control"/>
+      </Button.KeyboardAccelerators>
+      <AutomationProperties.Name>Ältere Woche laden</AutomationProperties.Name>
+    </Button>
 
     <!-- ===== FEED ===== -->
     <ScrollViewer Grid.Row="2"
