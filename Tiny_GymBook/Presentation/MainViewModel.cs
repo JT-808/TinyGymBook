@@ -34,16 +34,23 @@ public partial class MainViewModel : ObservableObject
         _navigator = navigator;
         _trainingsplanDBService = trainingsplanService;
 
-        _ = _trainingsplanDBService.InitAsync();
-
-        InitializeWeek();            // 1) Woche bestimmen
-        _ = LadeAllePlaeneAsync();   // 2) Pläne laden -> setzt AktiverPlan
-
-        // 3) Initial Wochen laden (OnAktiverPlanChanged ruft es eh nochmal – doppelt ist ok, aber optional)
-        _ = LoadInitialWeeksAsync();
+        _ = InitializeAsync(); // Start-Init
     }
 
+    private async Task InitializeAsync()
+    {
+        try
+        {
+            await _trainingsplanDBService.InitAsync();
+            InitializeWeek();                 // 1) Woche bestimmen
+            await LadeAllePlaeneAsync();      // 2) Pläne laden -> setzt AktiverPlan
+            await LoadInitialWeeksAsync();    // 3) Feed laden
+        }
+        finally
+        {
 
+        }
+    }
 
     private async Task LadeAllePlaeneAsync()
     {
