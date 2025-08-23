@@ -25,7 +25,7 @@ public class Trainingsplan
 
     public Trainingsplan(string name, IEnumerable<Uebung> uebungen)
     {
-        Name = name;
+        Name = name ?? string.Empty;
         Uebungen = new ObservableCollection<Uebung>(uebungen);
     }
 }

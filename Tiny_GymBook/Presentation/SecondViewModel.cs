@@ -53,7 +53,7 @@ public partial class SecondViewModel : ObservableObject
     [RelayCommand]
     private async Task AddPlanAsync()
     {
-        var neuerPlan = new Trainingsplan("Neuer Plan", new List<Uebung>());
+        var neuerPlan = new Trainingsplan(string.Empty, new List<Uebung>());
         await _trainingsplanDBService.SpeichereTrainingsplanAsync(neuerPlan, new List<Tag>());
         await LadeTrainingsplaeneAsync();
 

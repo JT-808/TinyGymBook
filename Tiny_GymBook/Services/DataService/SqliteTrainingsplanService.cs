@@ -99,7 +99,7 @@ public class SqliteTrainingsplanService : IDataService
         {
             var ersterTag = new Tag
             {
-                Name = "Tag 1",
+                Name = string.Empty,
                 Reihenfolge = 1,
                 Trainingsplan_Id = plan.Trainingsplan_Id
             };
@@ -349,7 +349,7 @@ public class SqliteTrainingsplanService : IDataService
                 // Default-Tag anlegen (immer – konsistent fürs Import-Szenario)
                 var defaultTag = new Tag
                 {
-                    Name = "Tag 1",
+                    Name = string.Empty,
                     Reihenfolge = 1,
                     Trainingsplan_Id = p.Trainingsplan_Id
                 };

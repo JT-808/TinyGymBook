@@ -73,5 +73,4 @@ dotnet publish Tiny_GymBook/Tiny_GymBook.csproj \
 neue namen
 
 Liftlog
-GymLog
-
+RepLog
