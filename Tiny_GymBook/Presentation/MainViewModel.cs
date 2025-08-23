@@ -17,6 +17,7 @@ public partial class MainViewModel : ObservableObject
     private readonly INavigator _navigator;
     private readonly IDataService _trainingsplanDBService;
     private const string LastPlanKey = "LastSelectedPlanId";
+    private bool _suppressChanges; // um doppelte Einträge zu verhindern
 
     [ObservableProperty]
     private Trainingswoche? aktuelleWoche;
@@ -39,11 +40,12 @@ public partial class MainViewModel : ObservableObject
 
     private async Task InitializeAsync()
     {
-
+        _suppressChanges = true;
         await _trainingsplanDBService.InitAsync();
         InitializeWeek();                 // 1) Woche bestimmen
         await LadeAllePlaeneAsync();      // 2) Pläne laden -> setzt AktiverPlan
         await LoadInitialWeeksAsync();    // 3) Feed laden
+        _suppressChanges = false;
 
 
 
@@ -97,6 +99,8 @@ public partial class MainViewModel : ObservableObject
     // Setze aktuellen Plan als Aktiv,  lade die Tage/Übungen/Sätze neu
     partial void OnAktiverPlanChanged(Trainingsplan? value)
     {
+        if (_suppressChanges) return;            // während Init ignorieren
+
         if (value != null)
         {
             var local = ApplicationData.Current.LocalSettings;
