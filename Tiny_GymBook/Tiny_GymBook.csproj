@@ -17,14 +17,14 @@
 
 
     <!-- Display name -->
-    <ApplicationTitle>Tiny_GymBook</ApplicationTitle>
+    <ApplicationTitle>RepLog</ApplicationTitle>
     <!-- App Identifier -->
-    <ApplicationId>com.companyname.TinyGymBook</ApplicationId>
+    <ApplicationId>com.companyname.RepLog</ApplicationId>
     <!-- Versions -->
     <ApplicationDisplayVersion>0.8</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <!-- Package Publisher -->
-    <ApplicationPublisher>Tiny_GymBook</ApplicationPublisher>
+    <ApplicationPublisher>RepLog</ApplicationPublisher>
     <!-- Package Description -->
     <Description>Tiny_GymBook powered by Uno Platform.</Description>
 
