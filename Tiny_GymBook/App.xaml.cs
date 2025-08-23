@@ -12,31 +12,31 @@ public partial class App : Application
     {
         this.InitializeComponent();
         // wenn App minimiert wird
-        this.Suspending += OnSuspending;
+        //   this.Suspending += OnSuspending;
 
     }
 
     //TODO: beim minimieren alles Speichern
-    private async void OnSuspending(object sender, SuspendingEventArgs e)
-    {
-        // TODO: ViewModel/Service aufrufen und speichern!
-        var deferral = e.SuspendingOperation.GetDeferral();
-        try
-        {
-            // Beispiel: alle Änderungen speichern
-            await SaveAllDataAsync();
-        }
-        finally
-        {
-            deferral.Complete();
-        }
-    }
+    // private async void OnSuspending(object sender, SuspendingEventArgs e)
+    // {
+    //     // TODO: ViewModel/Service aufrufen und speichern!
+    //     var deferral = e.SuspendingOperation.GetDeferral();
+    //     try
+    //     {
+    //        // Beispiel: alle Änderungen speichern
+    //        await SaveAllDataAsync();
+    //     }
+    //     finally
+    //     {
+    //         deferral.Complete();
+    //     }
+    // }
 
-    private async Task SaveAllDataAsync()
-    {
+    // private async Task SaveAllDataAsync()
+    // {
 
-        // await DeinTrainingsplanService.SpeichereAlles();
-    }
+    //      await DeinTrainingsplanService.SpeichereAlles();
+    // }
 
 
     protected Window? MainWindow { get; private set; }
