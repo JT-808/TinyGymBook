@@ -7,7 +7,7 @@
 ---
 
 <div style="display: flex; gap: 10px;">
-  <img src="Tiny_GymBook/Assets/Screenshots/Sreenshoot.png" width="800" />
+  <img src="Tiny_GymBook/Assets/Screenshots/Screenshoot.png" width="800" />
 </div>
 
 ---
