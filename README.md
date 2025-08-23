@@ -27,7 +27,6 @@ Kein Login, keine Werbung, keine Tracker. Einfach Training festhalten und Fortsc
 ## Installation (Android)
 1. Lade die **APK** aus den Release-Assets herunter:  
    👉 [Releases](https://github.com/JT-808/TinyGymBook/releases)  
-   (alternativ: [Tags](https://github.com/JT-808/TinyGymBook/tags))
 2. Öffne die APK auf deinem Gerät und erlaube ggf. die Installation aus **unbekannten Quellen/Apps**.
 3. Starte **RepLog** – kein Konto nötig.
 
