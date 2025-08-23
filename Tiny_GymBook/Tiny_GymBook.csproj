@@ -1,6 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0-desktop</TargetFrameworks>
+    <TargetFrameworks>net9.0-desktop;net9.0-android</TargetFrameworks>
 
     <!-- ;net9.0-android;-->
 
@@ -26,7 +26,7 @@
     <!-- Package Publisher -->
     <ApplicationPublisher>RepLog</ApplicationPublisher>
     <!-- Package Description -->
-    <Description>Tiny_GymBook powered by Uno Platform.</Description>
+    <Description>Replog description.</Description>
 
     <!--
       UnoFeatures let's you quickly add and manage implicit package references based on the features you

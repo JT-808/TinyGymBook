@@ -4,53 +4,50 @@
 
 ⚠️ Dieses Projekt befindet sich noch in Entwicklung.
 
-# Minimal Gym Tracker
-
-Eine schlanke, plattformübergreifende Gym-Tracking-App, die sich auf das Wesentliche konzentriert.
-
 ---
 
 <div style="display: flex; gap: 10px;">
   <img src="Tiny_GymBook/Assets/Screenshots/Screenshots 0.3.jpg" width="800" />
 </div>
 
-## Über das Projekt
-
-Die App richtet sich an Anfänger und Fortgeschrittene, die ihre Trainingswerte einfach und ohne Ablenkung dokumentieren möchten.
-
-- Kein Login, kein Account
-- Keine Tracker, keine Werbung
-- Wie ein Trainingsbuch, um Werte schnell zu dokumentieren
-
-Ziel ist es, eine einfache und schnelle Möglichkeit zu bieten, Fortschritte festzuhalten – ohne Schnickschnack.
 
 ---
+# RepLog v0.8 – Minimaler Gym-Tracker (APK)
 
-## Features
+**RepLog** ist eine schlanke Gym-Tracking-App ohne Schnickschnack – wie ein digitales Trainingsbuch.  
+Kein Login, keine Werbung, keine Tracker. Einfach Training festhalten und Fortschritt sehen.
 
-- Einfaches Hinzufügen von Trainingseinheiten und Übungen
-- Übersichtliche Anzeige der letzten Trainingswerte
-- Plattformübergreifend mit C# und Uno Platform
-- Fokus auf schnelle und intuitive Bedienung
+## Highlights
+- 📝 Pläne, Tage und Übungen schnell anlegen & bearbeiten
+- 🔢 Letzte Trainingswerte im Blick (einfaches, schnelles Logging)
+- 💾 Lokale Speicherung (SQLite), komplett offline nutzbar
+- ⬆️⬇️ Export & Import als JSON (Backup/Restore)
+- 🧭 Uno Platform + C# (Cross-Platform-Codebasis)
 
----
+## Installation (Android)
+1. Lade die **APK** aus den Release-Assets herunter:  
+   👉 [Releases](https://github.com/JT-808/TinyGymBook/releases)  
+   (alternativ: [Tags](https://github.com/JT-808/TinyGymBook/tags))
+2. Öffne die APK auf deinem Gerät und erlaube ggf. die Installation aus **unbekannten Quellen/Apps**.
+3. Starte **RepLog** – kein Konto nötig.
 
-## Installation
+> Hinweis: Erste Installation evtl. mit Hinweis auf „Unbekannte Quellen“. Das ist normal beim Sideloading.
 
-...folgt
+## Anforderungen
+- Android (empfohlen ab **Android 8+**).
+- Internet ist **nicht** erforderlich (nur für GitHub-Download).
 
----
+## Datenschutz
+- **Kein Konto**, **keine Cloud**, **keine Werbung**, **kein Tracking**.  
+- Alle Daten bleiben lokal auf deinem Gerät.
 
-## Nutzung
+## Bekannte Einschränkungen
+- Projekt ist **Work-in-Progress** – Features können sich ändern.
+- UI/UX wird weiter optimiert.
 
-Starte die App und dokumentiere deine Workouts – ganz ohne Ablenkung oder komplizierte Benutzerführung.
-
----
-
-## Entwicklung & Beitrag
-
-Dieses Projekt ist eine Belegarbeit im C#-Modul an der Hochschule und befindet sich noch komplett am Anfang.  
-Beiträge und Feedback sind herzlich willkommen!
+## Support & Feedback
+- Probleme oder Wünsche? Bitte ein **Issue** im Repository erstellen.
+- Optional: Beim Bugreport APK-Version (**v0.8**) und Android-Version angeben.
 
 ---
 
