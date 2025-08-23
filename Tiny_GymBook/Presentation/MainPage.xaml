@@ -8,10 +8,14 @@
   xmlns:controls="using:Microsoft.UI.Xaml.Controls"
   mc:Ignorable="d"
   x:Name="RootPage"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+  utu:StatusBar.Foreground="Auto">
 
+  <!-- Root layout protected against Android/iOS system bars + keyboard -->
   <Grid Padding="12"
-        RowSpacing="6">
+        RowSpacing="6"
+        utu:SafeArea.Insets="Top,Bottom,SoftInput">
+
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <!-- Header -->
@@ -95,8 +99,8 @@
                 <!-- Wochen-Subheader: rechts "Tage: N" -->
                 <TextBlock Grid.Column="1"
                            Opacity="0.8">
-  <Run Text="Tage: "/>
-  <Run Text="{Binding Tage.Count}"/>
+                  <Run Text="Tage: "/>
+                  <Run Text="{Binding Tage.Count}"/>
                 </TextBlock>
               </Grid>
 
@@ -161,8 +165,8 @@
                             <!-- Tag-Subheader: rechts "Übungen: N" -->
                             <TextBlock Grid.Column="1"
                                        FontWeight="SemiBold">
-  <Run Text="Übungen: "/>
-  <Run Text="{Binding Uebungen.Count}"/>
+                              <Run Text="Übungen: "/>
+                              <Run Text="{Binding Uebungen.Count}"/>
                             </TextBlock>
                           </Grid>
 
@@ -273,7 +277,9 @@
                                               <Flyout Placement="Bottom">
                                                 <Flyout.FlyoutPresenterStyle>
                                                   <Style TargetType="FlyoutPresenter">
+
                                                     <!-- passt sich Light/Dark automatisch an, deckend -->
+
                                                     <Setter Property="Background"
                                                             Value="{ThemeResource SolidBackgroundFillColorBaseBrush}"/>
                                                     <Setter Property="Foreground"
@@ -342,7 +348,8 @@
 
     <!-- ===== Bottom-Navigation (Uno Toolkit) ===== -->
     <utu:TabBar Grid.Row="3"
-                Margin="0,8,0,0">
+                Margin="0,8,0,0"
+                utu:SafeArea.Insets="Bottom">
       <utu:TabBar.Items>
         <utu:TabBarItem x:Uid="TabHome"
                         Padding="12"
