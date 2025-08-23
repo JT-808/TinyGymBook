@@ -54,6 +54,7 @@ dotnet build Tiny_GymBook/Tiny_GymBook.csproj \
 
 adb install -r Tiny_GymBook/bin/Release/net9.0-android/\*-Signed.apk
 
+
 ## Windows:
 
 dotnet publish Tiny_GymBook/Tiny_GymBook.csproj \
